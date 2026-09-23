@@ -1,0 +1,105 @@
+{
+  "candidate": {
+    "name": "Sri Lakshmi Sravya Reddy Kovvuri",
+    "title": "Certified Professional Coder (CPC) & Former Dentist",
+    "email": "saradec182023@gmail.com",
+    "phone": "+1(513)886-0280",
+    "location": "Ohio, USA",
+    "preferred_locations": ["Ohio", "Cincinnati, OH", "Dayton, OH", "Columbus, OH", "Cleveland, OH", "Remote", "Hybrid"],
+    "summary": "Certified Professional Coder (CPC) combining hands-on clinical experience as a licensed dentist with expertise in ICD-10-CM, CPT, and HCPCS coding systems. Proven track record in clinical documentation, medical necessity verification, and revenue cycle management alignment. Highly skilled in bridging the gap between provider clinical intent and compliant healthcare data submission to minimize claim denials and optimize reimbursement workflows."
+  },
+  "certifications": [
+    {
+      "name": "Certified Professional Coder (CPC)",
+      "issuer": "American Academy of Professional Coders (AAPC)",
+      "location": "Dayton, Ohio",
+      "date": "10/2025",
+      "status": "Active"
+    }
+  ],
+  "education": [
+    {
+      "degree": "Bachelor of Dental Surgery (BDS)",
+      "institution": "Vishnu Dental College",
+      "location": "Andhra Pradesh, India",
+      "graduation_date": "09/2018"
+    }
+  ],
+  "skills": {
+    "coding_systems": [
+      "ICD-10-CM",
+      "CPT",
+      "HCPCS Level II",
+      "E/M Coding",
+      "CDT Coding (Dental)",
+      "Modifiers"
+    ],
+    "compliance_and_regulations": [
+      "HIPAA",
+      "CMS Guidelines",
+      "NCCI Edits",
+      "OIG Compliance",
+      "Medical Necessity Guidelines",
+      "Payer Policies"
+    ],
+    "health_information_systems": [
+      "Electronic Health Records (EHR)",
+      "Practice Management Systems",
+      "Billing Systems",
+      "Revenue Cycle Management (RCM)",
+      "Claims Scrubbers"
+    ],
+    "clinical_and_administrative": [
+      "Clinical Documentation Improvement (CDI)",
+      "Insurance Claims & Appeals",
+      "Anatomic & Pathologic Terminology",
+      "Chart Auditing & Review",
+      "Claim Denial Resolution",
+      "Prior Authorization"
+    ],
+    "clinical_dental_expertise": [
+      "Oral Healthcare & Diagnosis",
+      "Dental Procedures & Treatment Planning",
+      "Periodontics, Endodontics, Oral Surgery Concepts",
+      "Maxillofacial Anatomy",
+      "Dental Charting & Clinical Logs"
+    ]
+  },
+  "experience": [
+    {
+      "role": "Dentist & Clinical Documentation Lead",
+      "company": "SKY Dental Clinic",
+      "location": "Hyderabad, India",
+      "dates": "02/2020 – 12/2021",
+      "highlights": [
+        "Diagnosed and treated diverse patient populations, producing precise electronic clinical documentation aligned with diagnostic criteria.",
+        "Partnered with billing staff to review insurance claims, decipher clinical chart entries, and ensure proper coding alignment prior to submission.",
+        "Streamlined patient record management processes to enhance document accuracy, ensuring strict adherence to healthcare privacy standards."
+      ]
+    },
+    {
+      "role": "Dentist & Treatment Coordinator",
+      "company": "Dentalign Multispeciality Dental Clinic",
+      "location": "Goa, India",
+      "dates": "10/2018 – 01/2020",
+      "highlights": [
+        "Delivered comprehensive oral healthcare services while maintaining detailed clinical logs and treatment plans.",
+        "Evaluated patient records for accuracy, completeness, and clinical consistency to reduce administrative errors and delays.",
+        "Interfaced with cross-functional staff to resolve insurance billing inquiries and verify coverage eligibility."
+      ]
+    }
+  ],
+  "target_roles": [
+    "Certified Medical Coder",
+    "CPC Coder",
+    "Outpatient Medical Coder",
+    "Inpatient Medical Coder",
+    "Dental Coder",
+    "Dental Billing Specialist",
+    "Clinical Documentation Improvement (CDI) Specialist",
+    "Medical Claims Reviewer",
+    "Billing & Coding Auditor",
+    "Revenue Cycle Specialist",
+    "Risk Adjustment / HCC Coder"
+  ]
+}

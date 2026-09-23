@@ -1,0 +1,184 @@
+import warnings
+warnings.filterwarnings("ignore")
+import argparse
+import sys
+from pathlib import Path
+from models import CandidateProfile, JobPosting
+from matcher import ATSMatcher
+from job_finder import JobFinderService
+from cover_letter import CoverLetterGenerator
+from tracker import ApplicationTracker
+
+
+PROFILE_PATH = Path(__file__).parent / "resume_profile.json"
+
+
+def display_profile(profile: CandidateProfile):
+    print("=" * 70)
+    print(f"CANDIDATE: {profile.name}")
+    print(f"TITLE:     {profile.title}")
+    print(f"LOCATION:  {profile.location}")
+    print(f"CONTACT:   {profile.email} | {profile.phone}")
+    print("=" * 70)
+    print("\n[ACTIVE CERTIFICATIONS]")
+    for c in profile.certifications:
+        print(f"  * {c['name']} - {c.get('issuer', '')} ({c.get('location', '')}, {c.get('date', '')})")
+
+    print("\n[CLINICAL & CODING SKILLS]")
+    for category, skills in profile.skills.items():
+        print(f"  * {category.replace('_', ' ').title()}: {', '.join(skills)}")
+
+    print("\n[TARGET ROLES]")
+    for r in profile.target_roles:
+        print(f"  * {r}")
+    print("=" * 70)
+
+
+def search_command(finder: JobFinderService, matcher: ATSMatcher, args):
+    print(f"\nSearching jobs (Location: {args.location}, Keywords: {args.keywords or 'All'})...\n")
+    jobs = finder.search_jobs(
+        keywords=args.keywords,
+        location_filter=args.location,
+        category_filter=args.category,
+        include_live=args.live
+    )
+
+    scored_jobs = [(j, matcher.match(j)) for j in jobs]
+    scored_jobs.sort(key=lambda x: x[1].score, reverse=True)
+
+    print(f"Found {len(scored_jobs)} relevant opportunities:\n")
+    for job, result in scored_jobs:
+        score_color = "🟢" if result.score >= 80 else ("🟡" if result.score >= 60 else "⚪")
+        print(f"{score_color} [{result.score}% Match] {job.title}")
+        print(f"   Company: {job.company} | Location: {job.location}")
+        print(f"   Salary:  {job.salary_range} | Type: {job.employment_type}")
+        print(f"   ID:      {job.id} | Link: {job.url}")
+        if result.strengths:
+            print(f"   Key Advantage: {result.strengths[0]}")
+        print("-" * 65)
+
+
+def match_text_command(matcher: ATSMatcher, args):
+    content = ""
+    if args.file:
+        content = Path(args.file).read_text(encoding="utf-8")
+    elif args.text:
+        content = args.text
+    else:
+        print("Please provide job text via --text or --file.")
+        sys.exit(1)
+
+    temp_job = JobPosting(
+        id="custom-input",
+        title=args.title or "Target Job Opportunity",
+        company=args.company or "Prospective Employer",
+        location=args.location or "Ohio / Remote",
+        is_remote=True,
+        description=content
+    )
+
+    result = matcher.match(temp_job)
+
+    print("=" * 70)
+    print(f"ATS MATCH ANALYSIS FOR: {temp_job.title} at {temp_job.company}")
+    print("=" * 70)
+    print(f"OVERALL ATS FIT SCORE: {result.score}%")
+    print(f"CPC Requirement Detected: {'YES (Matched)' if result.is_cpc_required else 'No explicit mention'}")
+    print(f"Dental Synergies Detected: {'YES (High clinician advantage)' if result.is_dental_relevant else 'Standard Healthcare'}")
+
+    print("\n[MATCHED SKILLS & KEYWORDS]")
+    for skill in result.matched_skills:
+        print(f"  ✓ {skill}")
+
+    if result.missing_skills:
+        print("\n[MISSING KEYWORDS IN POSTING]")
+        for skill in result.missing_skills:
+            print(f"  ✗ {skill}")
+
+    print("\n[RECOMMENDED PITCH]")
+    print(f"  > {result.recommended_pitch}")
+    print("=" * 70)
+
+
+def cover_letter_command(profile: CandidateProfile, finder: JobFinderService, matcher: ATSMatcher, args):
+    gen = CoverLetterGenerator(profile)
+    target_job = None
+    if args.id:
+        for j in finder.cached_jobs:
+            if j.id == args.id:
+                target_job = j
+                break
+
+    if not target_job:
+        target_job = JobPosting(
+            id="target-01",
+            title=args.title or "Certified Medical Coder",
+            company=args.company or "Healthcare Organization",
+            location=args.location or "Ohio",
+            is_remote=True,
+            description="Seeking CPC certified coder with clinical documentation and ICD-10 knowledge."
+        )
+
+    result = matcher.match(target_job)
+    letter = gen.generate(target_job, result)
+    print("\n" + "=" * 70)
+    print("GENERATED TAILORED COVER LETTER")
+    print("=" * 70)
+    print(letter)
+    print("=" * 70)
+
+    if args.save:
+        out_path = Path(args.save)
+        out_path.write_text(letter, encoding="utf-8")
+        print(f"\nSaved cover letter to: {out_path.resolve()}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Job Finder & ATS Matcher for Sri Lakshmi Sravya Reddy Kovvuri")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    # Profile command
+    subparsers.add_parser("profile", help="Display candidate profile and extracted resume skills")
+
+    # Search command
+    search_p = subparsers.add_parser("search", help="Search curated and remote job listings")
+    search_p.add_argument("--location", default="All", choices=["All", "Ohio Only", "Remote Only"])
+    search_p.add_argument("--category", default="All", choices=["All", "Medical Coding", "Clinical Documentation Improvement", "Dental Coding & Cross-Coding", "Revenue Cycle & Denials"])
+    search_p.add_argument("--keywords", default=None, help="Filter keywords (e.g. 'cpc', 'dental', 'cdi')")
+    search_p.add_argument("--live", action="store_true", help="Include live remote public feeds")
+
+    # Match command
+    match_p = subparsers.add_parser("match", help="Match a specific job description against resume")
+    match_p.add_argument("--text", help="Raw job description text")
+    match_p.add_argument("--file", help="Path to text file containing job description")
+    match_p.add_argument("--title", default="Medical Coder", help="Job title")
+    match_p.add_argument("--company", default="Healthcare System", help="Company name")
+    match_p.add_argument("--location", default="Ohio", help="Location")
+
+    # Cover letter command
+    cl_p = subparsers.add_parser("cover-letter", help="Generate a tailored cover letter")
+    cl_p.add_argument("--id", help="Curated job ID to generate letter for (e.g. oh-cc-001)")
+    cl_p.add_argument("--title", help="Custom job title")
+    cl_p.add_argument("--company", help="Custom company name")
+    cl_p.add_argument("--save", help="Optional output text filename to save")
+
+    args = parser.parse_args()
+
+    profile = CandidateProfile.load_from_json(PROFILE_PATH)
+    matcher = ATSMatcher(profile)
+    finder = JobFinderService()
+
+    if args.command == "profile" or len(sys.argv) == 1:
+        display_profile(profile)
+    elif args.command == "search":
+        search_command(finder, matcher, args)
+    elif args.command == "match":
+        match_text_command(matcher, args)
+    elif args.command == "cover-letter":
+        cover_letter_command(profile, finder, matcher, args)
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    main()
