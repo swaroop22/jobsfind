@@ -1,5 +1,5 @@
 # Sri Lakshmi Sravya Reddy Kovvuri
-**Certified Professional Coder (CPC) | Risk Adjustment & Clinical Diagnostic Coder**
+**AAPC Certified Professional Coder (CPC) | Risk Adjustment & Clinical Diagnostic Coder**
 Ohio, USA | +1(513)886-0280 | saradec182023@gmail.com | AAPC ID: CPC Credentialed
 
 ---

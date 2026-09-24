@@ -167,14 +167,21 @@ def resume_command(
     if args.all:
         out_dir = Path(args.outdir or "tailored_resumes")
         out_dir.mkdir(parents=True, exist_ok=True)
-        print(f"\nGenerating tailored ATS resumes for all {len(CURATED_HEALTHCARE_JOBS)} curated jobs...\n")
+        print(f"\nGenerating tailored ATS resumes (Markdown & PDF) for all {len(CURATED_HEALTHCARE_JOBS)} curated jobs...\n")
         for job in CURATED_HEALTHCARE_JOBS:
             res = matcher.match(job)
-            resume_text = gen.generate(job, res)
             clean_co = "".join(c for c in job.company if c.isalnum() or c in (" ", "_", "-")).replace(" ", "_")
-            out_file = out_dir / f"Resume_{job.id}_{clean_co}.md"
-            out_file.write_text(resume_text, encoding="utf-8")
-            print(f"  ✓ [{res.score}% Fit] Saved: {out_file.name}")
+
+            # Markdown
+            out_file_md = out_dir / f"Resume_{job.id}_{clean_co}.md"
+            resume_text = gen.generate(job, res)
+            out_file_md.write_text(resume_text, encoding="utf-8")
+
+            # PDF
+            out_file_pdf = out_dir / f"Resume_{job.id}_{clean_co}.pdf"
+            gen.generate_pdf(job, out_file_pdf, res)
+
+            print(f"  ✓ [{res.score}% Fit] Saved: {out_file_pdf.name} & {out_file_md.name}")
         print(f"\nAll resumes saved to: {out_dir.resolve()}\n")
         return
 
@@ -210,13 +217,19 @@ def resume_command(
         target_job = finder.cached_jobs[0]
 
     result = matcher.match(target_job)
-    resume = gen.generate(target_job, result)
+    is_pdf = args.pdf or (args.save and args.save.lower().endswith(".pdf"))
 
-    if args.save:
+    if is_pdf:
+        save_path = Path(args.save or f"Resume_{target_job.company.replace(' ', '_')}.pdf")
+        gen.generate_pdf(target_job, save_path, result)
+        print(f"\nSaved tailored ATS PDF resume to: {save_path.resolve()}")
+    elif args.save:
         out_path = Path(args.save)
+        resume = gen.generate(target_job, result)
         out_path.write_text(resume, encoding="utf-8")
         print(f"\nSaved tailored ATS resume to: {out_path.resolve()}")
     else:
+        resume = gen.generate(target_job, result)
         print("\n" + "=" * 70)
         print(f"TAILORED ATS RESUME FOR: {target_job.title} at {target_job.company} (Fit: {result.score}%)")
         print("=" * 70)
@@ -266,12 +279,13 @@ def build_parser() -> argparse.ArgumentParser:
     res_p = subparsers.add_parser("resume", help="Generate a tailored ATS-optimized resume for a job")
     res_p.add_argument("--id", help="Curated job ID to tailor resume for (e.g. oh-cc-001, rem-dent-004)")
     res_p.add_argument("--all", action="store_true", help="Generate tailored resumes for all curated jobs")
+    res_p.add_argument("--pdf", action="store_true", help="Compile resume directly to PDF")
     res_p.add_argument("--outdir", default="tailored_resumes", help="Output directory when generating with --all")
     res_p.add_argument("--title", help="Custom job title")
     res_p.add_argument("--company", help="Custom company name")
     res_p.add_argument("--text", help="Raw job description text")
     res_p.add_argument("--file", help="Path to text file with job description")
-    res_p.add_argument("--save", help="Optional output markdown filename to save")
+    res_p.add_argument("--save", help="Optional output filename (.md or .pdf) to save")
 
     return parser
 

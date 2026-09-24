@@ -1,5 +1,5 @@
 # Sri Lakshmi Sravya Reddy Kovvuri
-**Certified Professional Coder (CPC) | Revenue Cycle & Claims Denial Specialist**
+**AAPC Certified Professional Coder (CPC) | Revenue Cycle & Claims Denial Specialist**
 Ohio, USA | +1(513)886-0280 | saradec182023@gmail.com | AAPC ID: CPC Credentialed
 
 ---

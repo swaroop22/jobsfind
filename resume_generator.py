@@ -6,14 +6,16 @@ to maximize ATS keyword scoring and recruiter alignment for specific Job Descrip
 
 import argparse
 import sys
+import io
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Union
 
 from config import settings, setup_logging
 from models import CandidateProfile, JobPosting, MatchResult
 from matcher import ATSMatcher
 from job_finder import JobFinderService, CURATED_HEALTHCARE_JOBS
+from pdf_generator import compile_resume_to_pdf
 
 logger = logging.getLogger(__name__)
 
@@ -304,6 +306,43 @@ class TailoredResumeGenerator:
         logger.info("Generated tailored resume for '%s' at '%s' (Category: %s)", job.title, job.company, category)
         return resume_md
 
+    def generate_pdf(
+        self,
+        job: JobPosting,
+        output: Union[str, Path, io.BytesIO],
+        match_result: Optional[MatchResult] = None,
+    ) -> None:
+        """
+        Generate a complete, ATS-tailored resume compiled to professional PDF format.
+
+        Args:
+            job: The target JobPosting instance.
+            output: Destination file path or BytesIO buffer.
+            match_result: Optional precomputed MatchResult.
+        """
+        if match_result is None:
+            match_result = self.matcher.match(job)
+
+        category = self._determine_role_category(job, match_result)
+        headline = self._generate_headline(job, category)
+        summary = self._generate_summary(job, match_result, category)
+        skills_dict = self._prioritize_skills(match_result)
+        experiences = self._generate_experience(category)
+        contact_line = f"{self.profile.location} | {self.profile.phone} | {self.profile.email} | AAPC Credentialed CPC"
+
+        compile_resume_to_pdf(
+            candidate_name=self.profile.name,
+            headline=headline,
+            contact_line=contact_line,
+            summary=summary,
+            skills_dict=skills_dict,
+            certifications=self.profile.certifications,
+            experiences=experiences,
+            education=self.profile.education,
+            output=output,
+        )
+        logger.info("Generated tailored PDF resume for '%s' at '%s'", job.title, job.company)
+
 
 def build_parser() -> argparse.ArgumentParser:
     """CLI argument parser for resume_generator.py."""
@@ -313,7 +352,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--id", help="Curated job ID to target (e.g. oh-cc-001, rem-dent-004)")
     parser.add_argument("--all", action="store_true", help="Generate tailored resumes for all curated jobs")
-    parser.add_argument("--output", help="Output file path (e.g. Tailored_Resume.md)")
+    parser.add_argument("--pdf", action="store_true", help="Compile resume to PDF format")
+    parser.add_argument("--output", help="Output file path (e.g. Tailored_Resume.pdf or Tailored_Resume.md)")
     parser.add_argument("--output-dir", default="tailored_resumes", help="Directory for batch outputs (default: tailored_resumes)")
     parser.add_argument("--title", help="Custom job title for ad-hoc posting")
     parser.add_argument("--company", help="Custom company name for ad-hoc posting")
@@ -336,17 +376,24 @@ def main() -> None:
     if args.all:
         out_dir = Path(args.output_dir)
         out_dir.mkdir(parents=True, exist_ok=True)
-        print(f"\nGenerating tailored ATS resumes for all {len(CURATED_HEALTHCARE_JOBS)} curated healthcare jobs...\n")
+        print(f"\nGenerating tailored ATS resumes (both Markdown & PDF) for all {len(CURATED_HEALTHCARE_JOBS)} curated jobs...\n")
 
         for job in CURATED_HEALTHCARE_JOBS:
             res = matcher.match(job)
-            resume_content = generator.generate(job, res)
             clean_company = "".join(c for c in job.company if c.isalnum() or c in (" ", "_", "-")).replace(" ", "_")
-            out_file = out_dir / f"Resume_{job.id}_{clean_company}.md"
-            out_file.write_text(resume_content, encoding="utf-8")
-            print(f"  ✓ [{res.score}% Fit] Generated: {out_file.name} (Role: {job.title})")
 
-        print(f"\n🎉 Successfully created all resumes in directory: {out_dir.resolve()}\n")
+            # 1. Markdown version
+            md_file = out_dir / f"Resume_{job.id}_{clean_company}.md"
+            resume_content = generator.generate(job, res)
+            md_file.write_text(resume_content, encoding="utf-8")
+
+            # 2. PDF version
+            pdf_file = out_dir / f"Resume_{job.id}_{clean_company}.pdf"
+            generator.generate_pdf(job, pdf_file, res)
+
+            print(f"  ✓ [{res.score}% Fit] Generated: {pdf_file.name} & {md_file.name}")
+
+        print(f"\n🎉 Successfully created all PDF and Markdown resumes in directory: {out_dir.resolve()}\n")
         return
 
     target_job: Optional[JobPosting] = None
@@ -384,18 +431,27 @@ def main() -> None:
         target_job = finder.cached_jobs[0]
 
     match_res = matcher.match(target_job)
-    resume = generator.generate(target_job, match_res)
 
-    if args.output:
-        out_path = Path(args.output)
-        out_path.write_text(resume, encoding="utf-8")
-        print(f"\nSaved tailored ATS resume to: {out_path.resolve()}\n")
+    # Determine if PDF output is requested
+    is_pdf = args.pdf or (args.output and args.output.lower().endswith(".pdf"))
+
+    if is_pdf:
+        out_filename = args.output or f"Resume_{target_job.company.replace(' ', '_')}.pdf"
+        out_path = Path(out_filename)
+        generator.generate_pdf(target_job, out_path, match_res)
+        print(f"\n🎉 Successfully compiled tailored ATS PDF resume to: {out_path.resolve()}\n")
     else:
-        print("\n" + "=" * 70)
-        print(f"TAILORED ATS RESUME FOR: {target_job.title} at {target_job.company} (Fit: {match_res.score}%)")
-        print("=" * 70)
-        print(resume)
-        print("=" * 70)
+        resume = generator.generate(target_job, match_res)
+        if args.output:
+            out_path = Path(args.output)
+            out_path.write_text(resume, encoding="utf-8")
+            print(f"\nSaved tailored ATS resume to: {out_path.resolve()}\n")
+        else:
+            print("\n" + "=" * 70)
+            print(f"TAILORED ATS RESUME FOR: {target_job.title} at {target_job.company} (Fit: {match_res.score}%)")
+            print("=" * 70)
+            print(resume)
+            print("=" * 70)
 
 
 if __name__ == "__main__":

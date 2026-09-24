@@ -97,3 +97,31 @@ class TestTailoredResumeGenerator:
             assert len(res_md) > 500
             assert job.company in res_md
             assert "AAPC Certified Professional Coder (CPC)" in res_md
+
+    def test_generate_pdf_to_bytesio(
+        self,
+        resume_generator: TailoredResumeGenerator,
+        sample_cpc_job: JobPosting
+    ):
+        import io
+        buf = io.BytesIO()
+        resume_generator.generate_pdf(sample_cpc_job, buf)
+        pdf_bytes = buf.getvalue()
+
+        # PDF files must start with the standard header %PDF-
+        assert pdf_bytes.startswith(b"%PDF-")
+        assert len(pdf_bytes) > 1000
+
+    def test_generate_pdf_to_file(
+        self,
+        resume_generator: TailoredResumeGenerator,
+        sample_dental_job: JobPosting,
+        tmp_path: Path
+    ):
+        pdf_path = tmp_path / "test_dental_resume.pdf"
+        resume_generator.generate_pdf(sample_dental_job, pdf_path)
+
+        assert pdf_path.is_file()
+        assert pdf_path.stat().st_size > 1000
+        content = pdf_path.read_bytes()
+        assert content.startswith(b"%PDF-")

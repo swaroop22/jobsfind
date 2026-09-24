@@ -3,6 +3,7 @@ Streamlit Web Dashboard for JobsFind: Career Navigator & ATS Job Matcher.
 Tailored for Sri Lakshmi Sravya Reddy Kovvuri: AAPC Certified Professional Coder (CPC) & Former Dentist (BDS).
 """
 
+import io
 import sys
 import logging
 from pathlib import Path
@@ -210,7 +211,7 @@ with tab_explore:
             if res.strengths:
                 st.markdown(f"💡 <span style='color: #0369a1; font-weight: 500;'><b>Your Competitive Edge:</b> {res.strengths[0]}</span>", unsafe_allow_html=True)
 
-            btn_col1, btn_col2, btn_col3, btn_col4 = st.columns([1.5, 1.5, 2, 2.5])
+            btn_col1, btn_col2, btn_col3, btn_col4, btn_col5 = st.columns([1.2, 1.2, 1.4, 1.4, 2.2])
             with btn_col1:
                 if st.button("Save to Tracker", key=f"save_{job.id}"):
                     try:
@@ -231,15 +232,25 @@ with tab_explore:
             with btn_col3:
                 card_resume = resume_gen.generate(job, res)
                 st.download_button(
-                    label="📄 Tailored Resume",
+                    label="📄 Resume (.md)",
                     data=card_resume,
                     file_name=f"Resume_{job.company.replace(' ', '_')}.md",
                     mime="text/markdown",
                     key=f"res_dl_{job.id}"
                 )
             with btn_col4:
+                pdf_buf = io.BytesIO()
+                resume_gen.generate_pdf(job, pdf_buf, res)
+                st.download_button(
+                    label="📥 Resume (.pdf)",
+                    data=pdf_buf.getvalue(),
+                    file_name=f"Resume_{job.company.replace(' ', '_')}.pdf",
+                    mime="application/pdf",
+                    key=f"pdf_dl_{job.id}"
+                )
+            with btn_col5:
                 if job.url:
-                    st.markdown(f"[Apply on Company Portal ↗]({job.url})")
+                    st.markdown(f"[Apply on Portal ↗]({job.url})")
 
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -317,12 +328,23 @@ with tab_ats:
             custom_resume = resume_gen.generate(sample_job, analysis)
             st.markdown("---")
             st.subheader("📄 Tailored Resume for this Posting")
-            st.download_button(
-                label="📥 Download Tailored ATS Resume (.md)",
-                data=custom_resume,
-                file_name=f"Tailored_Resume_{custom_company.replace(' ', '_')}.md",
-                mime="text/markdown"
-            )
+            col_cust_dl1, col_cust_dl2 = st.columns(2)
+            with col_cust_dl1:
+                cust_pdf_buf = io.BytesIO()
+                resume_gen.generate_pdf(sample_job, cust_pdf_buf, analysis)
+                st.download_button(
+                    label="📥 Download Resume (.pdf)",
+                    data=cust_pdf_buf.getvalue(),
+                    file_name=f"Tailored_Resume_{custom_company.replace(' ', '_')}.pdf",
+                    mime="application/pdf"
+                )
+            with col_cust_dl2:
+                st.download_button(
+                    label="📥 Download Resume (.md)",
+                    data=custom_resume,
+                    file_name=f"Tailored_Resume_{custom_company.replace(' ', '_')}.md",
+                    mime="text/markdown"
+                )
             with st.expander("Preview Tailored Resume"):
                 st.markdown(custom_resume)
 
@@ -347,13 +369,25 @@ with tab_resume:
         tailored_res = resume_gen.generate(target_j, target_match)
 
         st.markdown(f"**Target Role:** `{target_j.title}` at `{target_j.company}` | **ATS Match:** `{target_match.score}%`")
-        st.download_button(
-            label="📥 Download Tailored Resume (.md)",
-            data=tailored_res,
-            file_name=f"Resume_{target_j.company.replace(' ', '_')}.md",
-            mime="text/markdown",
-            key="dl_resume_tab"
-        )
+        col_tab_dl1, col_tab_dl2 = st.columns(2)
+        with col_tab_dl1:
+            tab_pdf_buf = io.BytesIO()
+            resume_gen.generate_pdf(target_j, tab_pdf_buf, target_match)
+            st.download_button(
+                label="📥 Download Tailored Resume (.pdf)",
+                data=tab_pdf_buf.getvalue(),
+                file_name=f"Resume_{target_j.company.replace(' ', '_')}.pdf",
+                mime="application/pdf",
+                key="dl_resume_pdf_tab"
+            )
+        with col_tab_dl2:
+            st.download_button(
+                label="📥 Download Tailored Resume (.md)",
+                data=tailored_res,
+                file_name=f"Resume_{target_j.company.replace(' ', '_')}.md",
+                mime="text/markdown",
+                key="dl_resume_tab"
+            )
         st.text_area("Tailored Resume Preview (Markdown):", value=tailored_res, height=450)
     else:
         st.info("Select a curated position above, or use Tab 2 to paste any external job description.")
