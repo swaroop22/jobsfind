@@ -17,6 +17,7 @@ from matcher import ATSMatcher
 from job_finder import JobFinderService
 from cover_letter import CoverLetterGenerator
 from tracker import ApplicationTracker
+from resume_generator import TailoredResumeGenerator
 
 logger = setup_logging()
 
@@ -100,7 +101,7 @@ st.markdown("""
 
 # Initialize Services with Error Boundary
 @st.cache_resource
-def load_services() -> Tuple[CandidateProfile, ATSMatcher, JobFinderService, CoverLetterGenerator, ApplicationTracker]:
+def load_services() -> Tuple[CandidateProfile, ATSMatcher, JobFinderService, CoverLetterGenerator, ApplicationTracker, TailoredResumeGenerator]:
     """Load core application services with central configuration and caching."""
     try:
         profile = CandidateProfile.load_from_json(settings.profile_path)
@@ -112,6 +113,7 @@ def load_services() -> Tuple[CandidateProfile, ATSMatcher, JobFinderService, Cov
     matcher = ATSMatcher(profile)
     finder = JobFinderService()
     generator = CoverLetterGenerator(profile)
+    resume_gen = TailoredResumeGenerator(profile, matcher)
     try:
         tracker = ApplicationTracker(db_path=settings.db_path)
     except DatabaseError as exc:
@@ -119,10 +121,10 @@ def load_services() -> Tuple[CandidateProfile, ATSMatcher, JobFinderService, Cov
         st.error(f"⚠️ Database Error: {exc}")
         st.stop()
 
-    return profile, matcher, finder, generator, tracker
+    return profile, matcher, finder, generator, tracker, resume_gen
 
 
-profile, matcher, finder, generator, tracker = load_services()
+profile, matcher, finder, generator, tracker, resume_gen = load_services()
 
 # Top Header
 st.markdown(f"""
@@ -139,9 +141,10 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # Navigation Tabs
-tab_explore, tab_ats, tab_cover, tab_tracker, tab_profile = st.tabs([
+tab_explore, tab_ats, tab_resume, tab_cover, tab_tracker, tab_profile = st.tabs([
     "🔎 Job Matches & Explorer",
     "🎯 ATS Resume Matcher (Paste Job)",
+    "📄 Tailored Resume Generator",
     "✍️ Cover Letter Generator",
     "📊 Application Tracker",
     "📋 Candidate Profile & Skills"
@@ -207,7 +210,7 @@ with tab_explore:
             if res.strengths:
                 st.markdown(f"💡 <span style='color: #0369a1; font-weight: 500;'><b>Your Competitive Edge:</b> {res.strengths[0]}</span>", unsafe_allow_html=True)
 
-            btn_col1, btn_col2, btn_col3 = st.columns([1.5, 1.5, 5])
+            btn_col1, btn_col2, btn_col3, btn_col4 = st.columns([1.5, 1.5, 2, 2.5])
             with btn_col1:
                 if st.button("Save to Tracker", key=f"save_{job.id}"):
                     try:
@@ -219,15 +222,24 @@ with tab_explore:
                             match_score=res.score,
                             job_url=job.url
                         )
-                        st.success("Saved to application tracker!")
+                        st.success("Saved to tracker!")
                     except DatabaseError as exc:
                         st.error(f"Failed to save application: {exc}")
             with btn_col2:
-                if st.button("Generate Pitch", key=f"pitch_{job.id}"):
+                if st.button("Strategy Pitch", key=f"pitch_{job.id}"):
                     st.info(f"**Application Strategy:** {res.recommended_pitch}")
             with btn_col3:
+                card_resume = resume_gen.generate(job, res)
+                st.download_button(
+                    label="📄 Tailored Resume",
+                    data=card_resume,
+                    file_name=f"Resume_{job.company.replace(' ', '_')}.md",
+                    mime="text/markdown",
+                    key=f"res_dl_{job.id}"
+                )
+            with btn_col4:
                 if job.url:
-                    st.markdown(f"[Apply on Company Website ↗]({job.url})")
+                    st.markdown(f"[Apply on Company Portal ↗]({job.url})")
 
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -237,7 +249,7 @@ with tab_explore:
 # ==============================================================================
 with tab_ats:
     st.subheader("Test Any Job Description Against Your Resume")
-    st.write("Copy and paste any job posting from LinkedIn, Indeed, or hospital career portals to evaluate ATS compatibility.")
+    st.write("Copy and paste any job posting from LinkedIn, Indeed, or hospital career portals to evaluate ATS compatibility and generate an optimized resume.")
 
     col_meta1, col_meta2 = st.columns(2)
     with col_meta1:
@@ -301,17 +313,63 @@ with tab_ats:
                 for tip in analysis.improvement_tips:
                     st.info(tip)
 
+            # Generate tailored resume for this custom job
+            custom_resume = resume_gen.generate(sample_job, analysis)
+            st.markdown("---")
+            st.subheader("📄 Tailored Resume for this Posting")
+            st.download_button(
+                label="📥 Download Tailored ATS Resume (.md)",
+                data=custom_resume,
+                file_name=f"Tailored_Resume_{custom_company.replace(' ', '_')}.md",
+                mime="text/markdown"
+            )
+            with st.expander("Preview Tailored Resume"):
+                st.markdown(custom_resume)
+
 
 # ==============================================================================
-# TAB 3: COVER LETTER GENERATOR
+# TAB 3: TAILORED RESUME GENERATOR
+# ==============================================================================
+with tab_resume:
+    st.subheader("Generate a Tailored ATS Resume")
+    st.write("Customizes summary, technical keywords matrix, and clinical experience bullets for any specific healthcare position.")
+
+    res_job_source = st.selectbox(
+        "Select Target Job for Resume",
+        ["Select a curated job posting..."] + [f"{j.company} - {j.title} ({j.id})" for j in finder.cached_jobs],
+        key="res_select_job"
+    )
+
+    if res_job_source != "Select a curated job posting...":
+        sel_id = res_job_source.split("(")[-1].rstrip(")")
+        target_j = next(j for j in finder.cached_jobs if j.id == sel_id)
+        target_match = matcher.match(target_j)
+        tailored_res = resume_gen.generate(target_j, target_match)
+
+        st.markdown(f"**Target Role:** `{target_j.title}` at `{target_j.company}` | **ATS Match:** `{target_match.score}%`")
+        st.download_button(
+            label="📥 Download Tailored Resume (.md)",
+            data=tailored_res,
+            file_name=f"Resume_{target_j.company.replace(' ', '_')}.md",
+            mime="text/markdown",
+            key="dl_resume_tab"
+        )
+        st.text_area("Tailored Resume Preview (Markdown):", value=tailored_res, height=450)
+    else:
+        st.info("Select a curated position above, or use Tab 2 to paste any external job description.")
+
+
+# ==============================================================================
+# TAB 4: COVER LETTER GENERATOR
 # ==============================================================================
 with tab_cover:
     st.subheader("Generate a Tailored Cover Letter")
     st.write("Creates an application letter bridging your dentist clinical background with AAPC CPC compliance.")
 
     cl_job_source = st.selectbox(
-        "Select Job Target",
-        ["Select a curated job posting..."] + [f"{j.company} - {j.title} ({j.id})" for j in finder.cached_jobs]
+        "Select Job Target for Letter",
+        ["Select a curated job posting..."] + [f"{j.company} - {j.title} ({j.id})" for j in finder.cached_jobs],
+        key="cl_select_job"
     )
 
     if cl_job_source != "Select a curated job posting...":
@@ -354,7 +412,7 @@ with tab_cover:
 
 
 # ==============================================================================
-# TAB 4: APPLICATION TRACKER
+# TAB 5: APPLICATION TRACKER
 # ==============================================================================
 with tab_tracker:
     st.subheader("Job Application Tracker")
@@ -421,7 +479,7 @@ with tab_tracker:
 
 
 # ==============================================================================
-# TAB 5: CANDIDATE PROFILE & SKILLS MATRIX
+# TAB 6: CANDIDATE PROFILE & SKILLS MATRIX
 # ==============================================================================
 with tab_profile:
     st.subheader("Your Profile & Professional Positioning")

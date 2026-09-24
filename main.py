@@ -15,6 +15,7 @@ from models import CandidateProfile, JobPosting
 from matcher import ATSMatcher
 from job_finder import JobFinderService
 from cover_letter import CoverLetterGenerator
+from resume_generator import TailoredResumeGenerator, CURATED_HEALTHCARE_JOBS
 
 logger = logging.getLogger("jobsfind.cli")
 
@@ -154,6 +155,75 @@ def cover_letter_command(
         print(f"\nSaved cover letter to: {out_path.resolve()}")
 
 
+def resume_command(
+    profile: CandidateProfile,
+    finder: JobFinderService,
+    matcher: ATSMatcher,
+    args: argparse.Namespace
+) -> None:
+    """Generate tailored ATS-optimized resumes."""
+    gen = TailoredResumeGenerator(profile, matcher)
+
+    if args.all:
+        out_dir = Path(args.outdir or "tailored_resumes")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        print(f"\nGenerating tailored ATS resumes for all {len(CURATED_HEALTHCARE_JOBS)} curated jobs...\n")
+        for job in CURATED_HEALTHCARE_JOBS:
+            res = matcher.match(job)
+            resume_text = gen.generate(job, res)
+            clean_co = "".join(c for c in job.company if c.isalnum() or c in (" ", "_", "-")).replace(" ", "_")
+            out_file = out_dir / f"Resume_{job.id}_{clean_co}.md"
+            out_file.write_text(resume_text, encoding="utf-8")
+            print(f"  ✓ [{res.score}% Fit] Saved: {out_file.name}")
+        print(f"\nAll resumes saved to: {out_dir.resolve()}\n")
+        return
+
+    target_job: Optional[JobPosting] = None
+    if args.id:
+        for j in finder.cached_jobs:
+            if j.id == args.id:
+                target_job = j
+                break
+        if not target_job:
+            print(f"Error: Curated job ID '{args.id}' not found.", file=sys.stderr)
+            sys.exit(1)
+    elif args.file or args.text:
+        content = ""
+        if args.file:
+            fpath = Path(args.file)
+            if not fpath.is_file():
+                print(f"Error: File not found: {args.file}", file=sys.stderr)
+                sys.exit(1)
+            content = fpath.read_text(encoding="utf-8")
+        else:
+            content = args.text or ""
+
+        target_job = JobPosting(
+            id="custom-resume-target",
+            title=args.title or "Certified Medical Coder",
+            company=args.company or "Healthcare Organization",
+            location="Ohio / Remote",
+            is_remote=True,
+            description=content
+        )
+    else:
+        target_job = finder.cached_jobs[0]
+
+    result = matcher.match(target_job)
+    resume = gen.generate(target_job, result)
+
+    if args.save:
+        out_path = Path(args.save)
+        out_path.write_text(resume, encoding="utf-8")
+        print(f"\nSaved tailored ATS resume to: {out_path.resolve()}")
+    else:
+        print("\n" + "=" * 70)
+        print(f"TAILORED ATS RESUME FOR: {target_job.title} at {target_job.company} (Fit: {result.score}%)")
+        print("=" * 70)
+        print(resume)
+        print("=" * 70)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Construct CLI argument parser."""
     parser = argparse.ArgumentParser(
@@ -192,6 +262,17 @@ def build_parser() -> argparse.ArgumentParser:
     cl_p.add_argument("--company", help="Custom company name")
     cl_p.add_argument("--save", help="Optional output text filename to save")
 
+    # Resume command
+    res_p = subparsers.add_parser("resume", help="Generate a tailored ATS-optimized resume for a job")
+    res_p.add_argument("--id", help="Curated job ID to tailor resume for (e.g. oh-cc-001, rem-dent-004)")
+    res_p.add_argument("--all", action="store_true", help="Generate tailored resumes for all curated jobs")
+    res_p.add_argument("--outdir", default="tailored_resumes", help="Output directory when generating with --all")
+    res_p.add_argument("--title", help="Custom job title")
+    res_p.add_argument("--company", help="Custom company name")
+    res_p.add_argument("--text", help="Raw job description text")
+    res_p.add_argument("--file", help="Path to text file with job description")
+    res_p.add_argument("--save", help="Optional output markdown filename to save")
+
     return parser
 
 
@@ -218,6 +299,8 @@ def main() -> None:
         match_text_command(matcher, args)
     elif args.command == "cover-letter":
         cover_letter_command(profile, finder, matcher, args)
+    elif args.command == "resume":
+        resume_command(profile, finder, matcher, args)
     else:
         parser.print_help()
 

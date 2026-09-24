@@ -53,19 +53,23 @@ graph TD
    - Resilient integration with live remote job feeds with retry backoff and offline fallback.
    - Filtering by category and location.
 
-3. **Tailored Cover Letter Generator (`cover_letter.py`)**
+3. **Tailored ATS Resume Generator (`resume_generator.py`)**
+   - Ingests specific job descriptions and tailors executive summaries, headlines, keyword-prioritized competency matrices, and clinical experience bullet points to match employer requirements.
+   - Batch generates tailored resumes for all curated roles or single customized resumes for ad-hoc postings.
+
+4. **Tailored Cover Letter Generator (`cover_letter.py`)**
    - Dynamically articulates the distinctive story: combining hands-on diagnostic dentistry with AAPC CPC coding accuracy.
    - Dynamically injects candidate contact information and employer-specific requirements.
 
-4. **Application Tracker (`tracker.py`)**
+5. **Application Tracker (`tracker.py`)**
    - SQLite database (`job_applications.db`) for tracking opportunities across stages: *Saved*, *Applied*, *Interviewing*, *Offer*, *Rejected*.
    - View KPIs, manage notes, and export to CSV.
 
-5. **Interactive Web Dashboard (`app.py`)**
-   - Streamlit UI with tabs for exploring jobs, testing ATS match scores, generating cover letters, tracking applications, and viewing skills matrix.
+6. **Interactive Web Dashboard (`app.py`)**
+   - Streamlit UI with tabs for exploring jobs, testing ATS match scores, generating resumes, creating cover letters, tracking applications, and viewing skills matrix.
 
-6. **CLI Utility (`main.py`)**
-   - Terminal commands for searching, scoring job descriptions, and generating letters with standard exit codes.
+7. **CLI Utility (`main.py`)**
+   - Terminal commands for searching, scoring job descriptions, generating resumes, and drafting letters with standard exit codes.
 
 ---
 
@@ -130,6 +134,16 @@ python main.py match --file path/to/job_description.txt
 # Generate a Tailored Cover Letter
 python main.py cover-letter --id oh-cc-001
 python main.py cover-letter --id rem-dent-004 --save Heartland_Cover_Letter.txt
+
+# Generate a Tailored ATS Resume
+python main.py resume --id oh-cc-001 --save ClevelandClinic_Resume.md
+python main.py resume --id rem-dent-004 --save Heartland_Resume.md
+
+# Batch Generate Tailored Resumes for All Curated Jobs
+python main.py resume --all --outdir tailored_resumes/
+
+# Tailor a Resume Against Any Custom Pasted Job Description
+python main.py resume --title "Dental Claims Specialist" --company "MetLife Dental" --text "CDT coding, dental chart review, pre-auth" --save MetLife_Resume.md
 ```
 
 ---
