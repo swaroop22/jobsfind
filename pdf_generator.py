@@ -48,18 +48,18 @@ class ResumePDFGenerator:
             "CandidateName",
             parent=styles["Normal"],
             fontName="Helvetica-Bold",
-            fontSize=18,
-            leading=22,
+            fontSize=17,
+            leading=21,
             textColor=NAVY_PRIMARY,
-            spaceAfter=3,
+            spaceAfter=2,
         )
 
         self.headline_style = ParagraphStyle(
             "CandidateHeadline",
             parent=styles["Normal"],
             fontName="Helvetica-Bold",
-            fontSize=10.5,
-            leading=14,
+            fontSize=10,
+            leading=13,
             textColor=BLUE_ACCENT,
             spaceAfter=3,
         )
@@ -68,21 +68,21 @@ class ResumePDFGenerator:
             "ContactInfo",
             parent=styles["Normal"],
             fontName="Helvetica",
-            fontSize=9,
-            leading=12,
+            fontSize=8.5,
+            leading=11.5,
             textColor=TEXT_MUTED,
-            spaceAfter=8,
+            spaceAfter=6,
         )
 
         self.section_heading_style = ParagraphStyle(
             "SectionHeading",
             parent=styles["Normal"],
             fontName="Helvetica-Bold",
-            fontSize=11,
-            leading=14,
+            fontSize=10,
+            leading=13,
             textColor=NAVY_PRIMARY,
-            spaceBefore=8,
-            spaceAfter=4,
+            spaceBefore=7,
+            spaceAfter=3,
             keepWithNext=True,
         )
 
@@ -90,18 +90,18 @@ class ResumePDFGenerator:
             "ResumeBody",
             parent=styles["Normal"],
             fontName="Helvetica",
-            fontSize=9.5,
-            leading=13.5,
+            fontSize=8.5,
+            leading=12,
             textColor=TEXT_CHARCOAL,
-            spaceAfter=4,
+            spaceAfter=3,
         )
 
         self.job_title_style = ParagraphStyle(
             "JobTitle",
             parent=styles["Normal"],
             fontName="Helvetica-Bold",
-            fontSize=10,
-            leading=13,
+            fontSize=9,
+            leading=12,
             textColor=TEXT_CHARCOAL,
         )
 
@@ -109,32 +109,32 @@ class ResumePDFGenerator:
             "JobMeta",
             parent=styles["Normal"],
             fontName="Helvetica-Oblique",
-            fontSize=9,
-            leading=12,
+            fontSize=8,
+            leading=10.5,
             textColor=TEXT_MUTED,
-            spaceAfter=3,
+            spaceAfter=2,
         )
 
         self.bullet_style = ParagraphStyle(
             "BulletText",
             parent=styles["Normal"],
             fontName="Helvetica",
-            fontSize=9,
-            leading=13,
+            fontSize=8.5,
+            leading=11.5,
             textColor=TEXT_CHARCOAL,
-            leftIndent=14,
-            firstLineIndent=-10,
-            spaceAfter=2.5,
+            leftIndent=12,
+            firstLineIndent=-8,
+            spaceAfter=2,
         )
 
         self.skill_category_style = ParagraphStyle(
             "SkillCategory",
             parent=styles["Normal"],
             fontName="Helvetica",
-            fontSize=9,
-            leading=12.5,
+            fontSize=8.5,
+            leading=11.5,
             textColor=TEXT_CHARCOAL,
-            spaceAfter=3,
+            spaceAfter=2,
         )
 
     def generate_pdf(
@@ -163,7 +163,7 @@ class ResumePDFGenerator:
             education: List of degrees and institutions.
             output: Destination file path or file-like buffer (io.BytesIO).
         """
-        # Document setup with 0.5-inch margins for maximum ATS space
+        # Document setup with 0.5-inch margins for maximum ATS space and embedded metadata
         target = str(output) if isinstance(output, Path) else output
         doc = SimpleDocTemplate(
             target,
@@ -172,6 +172,10 @@ class ResumePDFGenerator:
             rightMargin=36,
             topMargin=36,
             bottomMargin=36,
+            title=f"{candidate_name} - Resume",
+            author=candidate_name,
+            subject=headline,
+            creator="Professional Resume Compiler",
         )
 
         story = []

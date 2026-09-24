@@ -1,20 +1,19 @@
 # Sri Lakshmi Sravya Reddy Kovvuri
-**AAPC Certified Professional Coder (CPC) & Clinical Documentation Specialist | Former Dentist (BDS)**
+**AAPC Certified Professional Coder (CPC) & Clinical Documentation Specialist | Former Clinician (BDS)**
 Ohio, USA | +1(513)886-0280 | saradec182023@gmail.com | AAPC ID: CPC Credentialed
 
 ---
 
 ## PROFESSIONAL SUMMARY
-AAPC Certified Professional Coder (CPC) with direct clinical practitioner experience as a licensed dentist (BDS), bridging provider documentation intent with rigorous healthcare compliance guidelines. Tailored for OhioHealth's Clinical Documentation Improvement (CDI) Specialist position, leveraging clinician-to-clinician communication skills to review electronic health records (EHR), identify documentation clarification opportunities, and ensure complete diagnostic capture under CMS guidelines.
+AAPC Certified Professional Coder (CPC) and former clinical dentist (BDS) with an extensive foundation in clinical pathology, treatment protocols, and medical record review. Skilled at bridging provider clinical documentation with official CMS guidelines, ICD-10-CM coding conventions, and healthcare compliance standards. Experienced in evaluating electronic health records (EHR), identifying clarification opportunities, and crafting compliant physician queries to ensure complete diagnostic specificity and minimize coding delays. Dedicated to advancing clinical documentation integrity and chart quality for OhioHealth.
 
 ---
 
 ## CORE COMPETENCIES & TECHNICAL EXPERTISE
-- **Coding Systems:** CDT Coding (Dental), CPT, E/M Coding, HCPCS Level II, ICD-10-CM, Modifiers
-- **Compliance And Regulations:** CMS Guidelines, HIPAA, Medical Necessity Guidelines, NCCI Edits, OIG Compliance, Payer Policies
-- **Health Information Systems:** Electronic Health Records (EHR), Billing Systems, Claims Scrubbers, Practice Management Systems, Revenue Cycle Management (RCM)
-- **Clinical And Administrative:** Clinical Documentation Improvement (CDI), Anatomic & Pathologic Terminology, Chart Auditing & Review, Claim Denial Resolution, Insurance Claims & Appeals, Prior Authorization
-- **Clinical Dental Expertise:** Dental Charting & Clinical Logs, Dental Procedures & Treatment Planning, Maxillofacial Anatomy, Oral Healthcare & Diagnosis, Periodontics, Endodontics, Oral Surgery Concepts
+- **Medical & Procedural Coding:** CPT, Evaluation & Management (E/M), HCPCS Level II, ICD-10-CM, Modifiers (25, 59)
+- **Regulatory & Healthcare Compliance:** CMS Guidelines, HIPAA Privacy Standards, Medical Necessity Guidelines, NCCI Edits, OIG Compliance, Payer Coverage Policies
+- **Health Information Systems & RCM:** Claims Scrubbers, Electronic Health Records (EHR / Epic), Practice Management Systems, Prior Authorization Workflows, Revenue Cycle Management (RCM)
+- **Clinical Documentation & Review:** Clinical Documentation Improvement (CDI), Anatomic & Pathologic Terminology, Chart Auditing & Review, Claim Denial Resolution & Appeals
 
 ---
 
@@ -26,14 +25,16 @@ AAPC Certified Professional Coder (CPC) with direct clinical practitioner experi
 ## CLINICAL & HEALTHCARE EXPERIENCE
 ### Dentist & Clinical Documentation Lead
 *SKY Dental Clinic* | Hyderabad, India | **02/2020 – 12/2021**
-- Served as Clinical Documentation Lead, evaluating provider treatment records for diagnostic clarity, completeness, and adherence to medical necessity criteria.
-- Facilitated documentation clarification queries directly with practitioners to resolve chart ambiguities prior to administrative billing processing.
-- Instituted structured electronic documentation protocols that enhanced chart integrity, reducing downstream coding queries and audit flags.
+- Led clinical documentation review initiatives, evaluating provider encounter notes for diagnostic clarity, completeness, and adherence to medical necessity criteria.
+- Initiated compliant clinician documentation queries to resolve record ambiguities, conflicting entries, and unstated secondary conditions prior to billing submission.
+- Implemented standardized electronic documentation protocols that enhanced chart integrity and reduced downstream coding queries.
+- Maintained patient health records in full compliance with CMS documentation principles and official coding conventions.
 
 ### Dentist & Treatment Coordinator
 *Dentalign Multispeciality Dental Clinic* | Goa, India | **10/2018 – 01/2020**
-- Reviewed daily patient records to ensure clinical entries accurately substantiated all rendered diagnoses and therapeutic interventions.
-- Collaborated with healthcare staff to bridge documentation gaps and eliminate conflicting notes in patient health records.
+- Audited daily patient records to ensure clinical documentation fully substantiated all diagnosed conditions and rendered therapeutic treatments.
+- Collaborated with clinical and administrative colleagues to resolve chart documentation gaps and promote consistent medical record keeping.
+- Assisted in reviewing pre-treatment plans and clinical notes to verify alignment with payer documentation standards.
 
 ---
 

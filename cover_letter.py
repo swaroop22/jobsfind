@@ -34,10 +34,10 @@ class CoverLetterGenerator:
         # Dynamic introductory hook
         if is_dental:
             hook_paragraph = (
-                f"I am writing to express my strong enthusiasm for the {job.title} position at {job.company}. "
-                f"As an AAPC Certified Professional Coder (CPC) and a licensed clinician holding a Bachelor of Dental Surgery (BDS), "
-                f"I offer a rare dual qualification: deep, firsthand clinical mastery of dental procedures and oral anatomy paired "
-                f"with rigorous expertise in CDT, CPT, ICD-10-CM, and HCPCS coding systems."
+                f"I am writing to express my strong interest in the {job.title} position at {job.company}. "
+                f"As an AAPC Certified Professional Coder (CPC) and clinician holding a Bachelor of Dental Surgery (BDS), "
+                f"I offer a distinctive background combining firsthand clinical knowledge of dental procedures and oral anatomy "
+                f"with certified expertise in CDT, CPT, ICD-10-CM, and HCPCS coding systems."
             )
         else:
             hook_paragraph = (

@@ -7,6 +7,7 @@ to maximize ATS keyword scoring and recruiter alignment for specific Job Descrip
 import argparse
 import sys
 import io
+import re
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
@@ -45,82 +46,169 @@ class TailoredResumeGenerator:
         else:
             return "outpatient_medical_coding"
 
+    def _clean_job_title(self, title: str) -> str:
+        """Sanitize raw job posting titles to produce clean, professional resume headlines."""
+        cleaned = title or ""
+        patterns_to_strip = [
+            r"\s*\(\s*CPC\s+Required\s*\)",
+            r"\s*\(\s*Remote\b[^\)]*\)",
+            r"\s*\(\s*Hybrid\b[^\)]*\)",
+            r"\s*\(\s*On-site\b[^\)]*\)",
+            r"\s*\(\s*Nationwide\b[^\)]*\)",
+            r"\s*\(\s*USA\b[^\)]*\)",
+            r"\s*\(\s*Full[- ]?time\b[^\)]*\)",
+            r"\s*\(\s*Part[- ]?time\b[^\)]*\)",
+        ]
+        for pat in patterns_to_strip:
+            cleaned = re.sub(pat, "", cleaned, flags=re.IGNORECASE)
+        cleaned = cleaned.strip(" -|/,")
+        return cleaned or title
+
     def _generate_headline(self, job: JobPosting, category: str) -> str:
-        """Create an ATS-targeted candidate headline matching the job title."""
+        """Create a polished, human-written professional headline tailored to the role."""
+        clean_title = self._clean_job_title(job.title)
+
         if category == "dental":
-            return f"AAPC Certified Professional Coder (CPC) & Former Dentist (BDS) | {job.title}"
+            return f"AAPC Certified Professional Coder (CPC) & Former Dentist (BDS) | {clean_title}"
         elif category == "cdi":
-            return f"AAPC Certified Professional Coder (CPC) & Clinical Documentation Specialist | Former Dentist (BDS)"
+            return "AAPC Certified Professional Coder (CPC) & Clinical Documentation Specialist | Former Clinician (BDS)"
         elif category == "revenue_cycle":
-            return f"AAPC Certified Professional Coder (CPC) | Revenue Cycle & Claims Denial Specialist"
+            return "AAPC Certified Professional Coder (CPC) | Revenue Cycle & Claims Denial Specialist"
         elif category == "risk_adjustment":
-            return f"AAPC Certified Professional Coder (CPC) | Risk Adjustment & Clinical Diagnostic Coder"
+            return "AAPC Certified Professional Coder (CPC) | Risk Adjustment & HCC Diagnostic Coding Specialist"
+        elif category == "inpatient_surgical":
+            return "AAPC Certified Professional Coder (CPC) & Former Clinician (BDS) | Surgical & Specialty Medical Coder"
         else:
-            return f"AAPC Certified Professional Coder (CPC) & Former Clinician (BDS) | {job.title}"
+            return f"AAPC Certified Professional Coder (CPC) & Former Clinician (BDS) | {clean_title}"
 
     def _generate_summary(self, job: JobPosting, match_result: MatchResult, category: str) -> str:
-        """Draft a targeted, ATS-keyword-rich professional summary."""
-        matched_str = ", ".join(match_result.matched_skills[:5]) if match_result.matched_skills else "ICD-10-CM, CPT, and HCPCS Level II"
+        """Draft an authentic, human-written professional summary free from AI tells and keyword stuffing."""
+        company = job.company.strip() if job.company else "the organization"
 
         if category == "dental":
             return (
-                f"Detail-oriented Certified Professional Coder (CPC) credentialed by the AAPC, offering a rare and powerful "
-                f"combination of hands-on diagnostic dentistry (Bachelor of Dental Surgery, BDS) and rigorous procedural coding "
-                f"expertise. Uniquely qualified for the {job.title} role at {job.company}, offering deep anatomical fluency in oral "
-                f"and maxillofacial procedures, seamless CDT to CPT/ICD-10-CM cross-coding, and pre-authorization precision. "
-                f"Proven track record reviewing complex clinical logs, verifying medical necessity, and resolving claim denials."
+                f"AAPC Certified Professional Coder (CPC) and former clinical dentist holding a Bachelor of Dental "
+                f"Surgery (BDS), offering comprehensive diagnostic knowledge of oral and maxillofacial anatomy, restorative "
+                f"dentistry, and surgical procedures. Highly proficient in CDT procedure coding, medical cross-coding to "
+                f"CPT and ICD-10-CM, and pre-authorization documentation. Experienced in reviewing operative records, "
+                f"verifying medical necessity, and formulating clinical appeal letters to resolve denied claims. Dedicated "
+                f"to supporting {company} with coding precision, documentation compliance, and efficient revenue turnaround."
             )
         elif category == "cdi":
             return (
-                f"AAPC Certified Professional Coder (CPC) with direct clinical practitioner experience as a licensed dentist (BDS), "
-                f"bridging provider documentation intent with rigorous healthcare compliance guidelines. Tailored for {job.company}'s "
-                f"{job.title} position, leveraging clinician-to-clinician communication skills to review electronic health records (EHR), "
-                f"identify documentation clarification opportunities, and ensure complete diagnostic capture under CMS guidelines."
+                f"AAPC Certified Professional Coder (CPC) and former clinical dentist (BDS) with an extensive foundation in clinical "
+                f"pathology, treatment protocols, and medical record review. Skilled at bridging provider clinical documentation "
+                f"with official CMS guidelines, ICD-10-CM coding conventions, and healthcare compliance standards. Experienced in "
+                f"evaluating electronic health records (EHR), identifying clarification opportunities, and crafting compliant "
+                f"physician queries to ensure complete diagnostic specificity and minimize coding delays. Dedicated to advancing "
+                f"clinical documentation integrity and chart quality for {company}."
             )
         elif category == "risk_adjustment":
             return (
-                f"AAPC Certified Professional Coder (CPC) possessing strong foundational clinical pathology and diagnostic knowledge "
-                f"from years of direct healthcare delivery. Specially positioned for {job.company}'s {job.title} opening, ensuring strict "
-                f"adherence to CMS risk adjustment guidelines, accurate HCC category assignment, and thorough outpatient chart auditing "
-                f"to support compliant, data-driven reimbursement."
+                f"AAPC Certified Professional Coder (CPC) with direct clinical healthcare training (BDS), bringing strong "
+                f"pathology knowledge to risk adjustment coding and chart auditing. Proficient in ICD-10-CM official coding "
+                f"guidelines, CMS risk adjustment models, and hierarchical condition category (HCC) capture. Experienced in "
+                f"abstracting chronic conditions from outpatient clinical notes, validating that documentation satisfies MEAT "
+                f"criteria (Monitor, Evaluate, Assess, Treat), and upholding data integrity. Prepared to support {company} with "
+                f"meticulous diagnostic review and compliant risk adjustment reporting."
             )
         elif category == "revenue_cycle":
             return (
-                f"Certified Professional Coder (CPC) through AAPC with clinical documentation expertise and dedicated focus on Revenue "
-                f"Cycle Management (RCM) integrity. Applying for the {job.title} role at {job.company}, bringing deep experience "
-                f"deciphering complex clinical entries, investigating denied claims, auditing modifier usage (e.g., 25, 59), and "
-                f"preparing compelling clinical appeals that maximize reimbursement velocity while upholding strict OIG and CMS compliance."
+                f"AAPC Certified Professional Coder (CPC) with a clinical documentation background, specializing in revenue "
+                f"cycle integrity and claims denial management. Experienced in evaluating explanation of benefits (EOBs), "
+                f"identifying root causes of claim rejections, and auditing modifier utilization (e.g., 25, 59) in accordance "
+                f"with NCCI edits and payer-specific policies. Skilled in authoring evidence-based clinical appeal letters "
+                f"and collaborating with billing specialists to optimize claim turnaround. Dedicated to supporting {company} "
+                f"in recovering legitimate reimbursement while upholding strict compliance standards."
             )
-        else:
+        elif category == "inpatient_surgical":
             return (
-                f"AAPC Certified Professional Coder (CPC) in Dayton, Ohio, combining frontline clinical patient care experience as a licensed "
-                f"dentist (BDS) with mastery of medical coding standards ({matched_str}). Targeted for the {job.title} position at "
-                f"{job.company}. Leverages clinical diagnostic acumen to interpret provider notes with zero ramp-up time, assign precise "
-                f"diagnostic and procedural codes, verify medical necessity, and uphold flawless HIPAA and NCCI billing standards."
+                f"AAPC Certified Professional Coder (CPC) with a clinical dentistry foundation (BDS), providing deep anatomical "
+                f"knowledge of head and neck structures, surgical procedures, and clinical charting. Proficient in assigning "
+                f"accurate ICD-10-CM, CPT, and HCPCS Level II codes for complex specialty and surgical encounters while validating "
+                f"medical necessity and NCCI edits. Experienced in auditing operative notes and collaborating with clinical teams "
+                f"to uphold documentation accuracy and compliant billing workflows for {company}."
+            )
+        else:  # outpatient medical coding / default
+            return (
+                f"AAPC Certified Professional Coder (CPC) with a clinical background as a Bachelor of Dental Surgery (BDS) "
+                f"clinician, bringing hands-on diagnostic knowledge to outpatient medical coding, chart abstraction, and clinical "
+                f"documentation review. Thoroughly versed in ICD-10-CM, CPT, and HCPCS Level II coding conventions, Evaluation and "
+                f"Management (E/M) guidelines, NCCI edits, and CMS billing regulations. Experienced in interpreting provider "
+                f"encounter notes, verifying medical necessity, and collaborating across clinical and billing teams to ensure coding "
+                f"completeness and prevent claims rejections. Dedicated to supporting {company} with thorough documentation "
+                f"analysis, accurate code assignment, and compliant revenue cycle practices."
             )
 
-    def _prioritize_skills(self, match_result: MatchResult) -> Dict[str, List[str]]:
-        """Order skills based on job description hits to maximize ATS density."""
-        matched_set = set(match_result.matched_skills)
+    def _prioritize_skills(
+        self, match_result: MatchResult, category: str = "outpatient_medical_coding"
+    ) -> Dict[str, List[str]]:
+        """
+        Organize skills into clean, human professional categories with JD-matched competencies prioritized naturally.
+        Avoids mechanical keyword dumps and presents competencies like an experienced human coder.
+        """
+        matched_set = {m.lower() for m in match_result.matched_skills}
 
-        # Baseline skills from profile
-        skills = self.profile.skills
-
-        categorized: Dict[str, List[str]] = {}
-
-        for cat_name, skill_list in skills.items():
-            # Sort matched skills to the front of each category
-            sorted_list = sorted(
+        def sort_skills(skill_list: List[str]) -> List[str]:
+            return sorted(
                 skill_list,
-                key=lambda s: (0 if any(m.lower() in s.lower() or s.lower() in m.lower() for m in matched_set) else 1, s)
+                key=lambda s: (0 if any(m in s.lower() or s.lower() in m for m in matched_set) else 1, s)
             )
-            cat_display = cat_name.replace("_", " ").title()
-            categorized[cat_display] = sorted_list
+
+        coding_skills = [
+            "ICD-10-CM",
+            "CPT",
+            "HCPCS Level II",
+            "Evaluation & Management (E/M)",
+            "Modifiers (25, 59)"
+        ]
+        if category in ("dental", "inpatient_surgical") or match_result.is_dental_relevant:
+            coding_skills.insert(3, "CDT Dental Coding")
+
+        compliance_skills = [
+            "CMS Guidelines",
+            "NCCI Edits",
+            "HIPAA Privacy Standards",
+            "Medical Necessity Guidelines",
+            "OIG Compliance",
+            "Payer Coverage Policies"
+        ]
+
+        health_it_skills = [
+            "Electronic Health Records (EHR / Epic)",
+            "Practice Management Systems",
+            "Revenue Cycle Management (RCM)",
+            "Claims Scrubbers",
+            "Prior Authorization Workflows"
+        ]
+
+        clinical_skills = [
+            "Clinical Documentation Improvement (CDI)",
+            "Chart Auditing & Review",
+            "Anatomic & Pathologic Terminology",
+            "Claim Denial Resolution & Appeals"
+        ]
+
+        categorized: Dict[str, List[str]] = {
+            "Medical & Procedural Coding": sort_skills(coding_skills),
+            "Regulatory & Healthcare Compliance": sort_skills(compliance_skills),
+            "Health Information Systems & RCM": sort_skills(health_it_skills),
+            "Clinical Documentation & Review": sort_skills(clinical_skills),
+        }
+
+        if category in ("dental", "inpatient_surgical") or match_result.is_dental_relevant:
+            dental_skills = [
+                "Oral Healthcare & Diagnosis",
+                "Maxillofacial Anatomy",
+                "Dental Procedures & Treatment Planning",
+                "Dental Charting & Clinical Records"
+            ]
+            categorized["Clinical Dental Specialties"] = sort_skills(dental_skills)
 
         return categorized
 
     def _generate_experience(self, category: str) -> List[Dict[str, Any]]:
-        """Tailor experience bullet points to highlight skills demanded by the target role."""
+        """Tailor experience bullet points with authentic, active clinical and coding achievements."""
         experiences = []
 
         for exp in self.profile.experience:
@@ -130,84 +218,93 @@ class TailoredResumeGenerator:
             dates = exp.get("dates", "")
             base_highlights = list(exp.get("highlights", []))
 
-            # Role-specific tailored bullet points
-            tailored_highlights = []
+            tailored_highlights: List[str] = []
 
             if category == "dental":
                 if "SKY Dental" in company:
-                    tailored_highlights.append(
-                        "Managed end-to-end clinical charting and electronic procedural documentation for oral surgical, restorative, and periodontal cases, ensuring CDT accuracy."
-                    )
-                    tailored_highlights.append(
-                        "Partnered with practice billing personnel to facilitate cross-coding dental procedures to medical insurance carriers (CPT and ICD-10-CM) to optimize legitimate patient reimbursement."
-                    )
-                    tailored_highlights.append(
-                        "Conducted pre-authorization chart reviews, resolved claims denials through clinical justification letters, and upheld HIPAA healthcare privacy guidelines."
-                    )
+                    tailored_highlights = [
+                        "Directed clinical charting and electronic procedure documentation for complex surgical, restorative, and periodontal cases, ensuring CDT code accuracy.",
+                        "Collaborated closely with practice billing personnel to cross-code oral surgical procedures to medical carriers using CPT, ICD-10-CM, and HCPCS Level II codes.",
+                        "Conducted pre-authorization chart reviews, prepared clinical necessity appeal narratives for denied claims, and maintained compliance with HIPAA privacy standards.",
+                        "Standardized electronic clinical note templates across care teams to ensure documentation completeness and expedite insurance reimbursement turnaround."
+                    ]
                 else:
-                    tailored_highlights.append(
-                        "Maintained comprehensive dental clinical logs and diagnostic treatment records for high-volume outpatient patient populations."
-                    )
-                    tailored_highlights.append(
-                        "Cross-referenced patient charts against insurance carrier coverage guidelines, reducing administrative claim submission rejections."
-                    )
-                    tailored_highlights.append(
-                        "Educated clinical and administrative support teams on precise terminology for tooth numbering, quadrant descriptors, and procedural complexity."
-                    )
+                    tailored_highlights = [
+                        "Conducted comprehensive patient diagnostic examinations and surgical treatments while authoring detailed operative logs and treatment plans.",
+                        "Reviewed patient charts against insurance carrier coverage criteria to eliminate documentation discrepancies and prevent claim rejections.",
+                        "Educated administrative staff on anatomical descriptors, tooth numbering conventions, and procedural complexity to improve billing accuracy."
+                    ]
             elif category == "cdi":
                 if "SKY Dental" in company:
-                    tailored_highlights.append(
-                        "Served as Clinical Documentation Lead, evaluating provider treatment records for diagnostic clarity, completeness, and adherence to medical necessity criteria."
-                    )
-                    tailored_highlights.append(
-                        "Facilitated documentation clarification queries directly with practitioners to resolve chart ambiguities prior to administrative billing processing."
-                    )
-                    tailored_highlights.append(
-                        "Instituted structured electronic documentation protocols that enhanced chart integrity, reducing downstream coding queries and audit flags."
-                    )
+                    tailored_highlights = [
+                        "Led clinical documentation review initiatives, evaluating provider encounter notes for diagnostic clarity, completeness, and adherence to medical necessity criteria.",
+                        "Initiated compliant clinician documentation queries to resolve record ambiguities, conflicting entries, and unstated secondary conditions prior to billing submission.",
+                        "Implemented standardized electronic documentation protocols that enhanced chart integrity and reduced downstream coding queries.",
+                        "Maintained patient health records in full compliance with CMS documentation principles and official coding conventions."
+                    ]
                 else:
-                    tailored_highlights.append(
-                        "Reviewed daily patient records to ensure clinical entries accurately substantiated all rendered diagnoses and therapeutic interventions."
-                    )
-                    tailored_highlights.append(
-                        "Collaborated with healthcare staff to bridge documentation gaps and eliminate conflicting notes in patient health records."
-                    )
+                    tailored_highlights = [
+                        "Audited daily patient records to ensure clinical documentation fully substantiated all diagnosed conditions and rendered therapeutic treatments.",
+                        "Collaborated with clinical and administrative colleagues to resolve chart documentation gaps and promote consistent medical record keeping.",
+                        "Assisted in reviewing pre-treatment plans and clinical notes to verify alignment with payer documentation standards."
+                    ]
             elif category == "revenue_cycle":
                 if "SKY Dental" in company:
-                    tailored_highlights.append(
-                        "Directly collaborated with revenue cycle staff to review denied and pended claims, correcting coding errors and drafting clinical appeal justifications."
-                    )
-                    tailored_highlights.append(
-                        "Audited patient encounter forms for accurate modifier usage (e.g. 25, 59) and validated compliance with NCCI edits and payer-specific guidelines."
-                    )
-                    tailored_highlights.append(
-                        "Streamlined charge capture workflows to accelerate reimbursement velocity while maintaining 100% compliance with privacy and OIG regulations."
-                    )
+                    tailored_highlights = [
+                        "Collaborated directly with revenue cycle personnel to review denied and pended claims, identify root-cause coding issues, and draft clinical appeal justifications.",
+                        "Audited encounter records for correct modifier usage (e.g., 25, 59) and validated billing compliance with NCCI edits and payer coverage guidelines.",
+                        "Streamlined charge capture workflows to accelerate reimbursement turnaround while maintaining 100% adherence to compliance guidelines.",
+                        "Analyzed recurring billing discrepancies and provided clinical feedback to reduce initial claim rejection rates."
+                    ]
                 else:
-                    tailored_highlights.append(
-                        "Audited daily patient accounts and insurance billing inquiries to identify root causes of claim delays and adjudication errors."
-                    )
-                    tailored_highlights.append(
-                        "Verified patient eligibility, pre-authorizations, and coverage determination rules prior to major surgical procedures."
-                    )
+                    tailored_highlights = [
+                        "Audited patient encounter accounts and insurance explanation of benefits (EOBs) to identify adjudication errors and billing delays.",
+                        "Verified patient eligibility, prior authorizations, and coverage determinations prior to extensive surgical treatments.",
+                        "Assisted billing teams in clarifying procedure descriptions and clinical justifications to resolve payer inquiries."
+                    ]
+            elif category == "risk_adjustment":
+                if "SKY Dental" in company:
+                    tailored_highlights = [
+                        "Reviewed comprehensive patient encounter records to abstract documented chronic conditions and comorbidities, ensuring accurate ICD-10-CM code assignment.",
+                        "Verified that clinical notes satisfied MEAT criteria (Monitor, Evaluate, Assess, Treat) to support compliant HCC category assignment and audit readiness.",
+                        "Audited charts for diagnostic specificity and documentation completeness, identifying uncaptured manifestations and secondary diagnoses.",
+                        "Maintained data privacy and strict adherence to CMS official coding and reporting guidelines for risk-adjusted reimbursement."
+                    ]
+                else:
+                    tailored_highlights = [
+                        "Conducted clinical examinations and documented complete patient histories, physical assessments, and therapeutic interventions in electronic charts.",
+                        "Reviewed outpatient records for diagnostic completeness and clinical consistency to ensure documentation integrity.",
+                        "Maintained detailed clinical encounter logs upholding healthcare compliance and patient confidentiality standards."
+                    ]
+            elif category == "inpatient_surgical":
+                if "SKY Dental" in company:
+                    tailored_highlights = [
+                        "Reviewed and abstracted operative reports, pathology findings, and surgical notes for head and neck procedures, ensuring precise CPT and ICD-10-CM code assignment.",
+                        "Audited procedural records for medical necessity substantiation, correct surgical modifier application, and NCCI unbundling edit compliance.",
+                        "Collaborated with surgical and billing teams to clarify complex operative techniques and resolve pre-bill coding inquiries.",
+                        "Maintained electronic health records (EHR) adhering strictly to CMS documentation guidelines and HIPAA privacy regulations."
+                    ]
+                else:
+                    tailored_highlights = [
+                        "Delivered clinical patient care and performed minor oral surgical procedures while authoring thorough diagnostic and operative progress notes.",
+                        "Audited clinical encounter records for completeness, diagnostic specificity, and adherence to surgical treatment protocols.",
+                        "Coordinated with insurance specialists to confirm pre-authorizations and resolve procedural coverage inquiries."
+                    ]
             else:  # outpatient medical coding / default
                 if "SKY Dental" in company:
-                    tailored_highlights.append(
-                        "Interpreted provider clinical encounter notes, diagnostic findings, and pathology reports to assign accurate procedural and diagnostic designations."
-                    )
-                    tailored_highlights.append(
-                        "Collaborated daily with administrative billing personnel to verify medical necessity and substantiate reimbursement claims under ICD-10 and CPT coding frameworks."
-                    )
-                    tailored_highlights.append(
-                        "Maintained pristine electronic health records (EHR) adhering strictly to CMS guidelines, HIPAA data security, and official coding conventions."
-                    )
+                    tailored_highlights = [
+                        "Reviewed and abstracted outpatient clinical encounter notes, diagnostic findings, and treatment plans to assign accurate ICD-10-CM, CPT, and HCPCS Level II codes.",
+                        "Collaborated daily with administrative billing personnel to verify medical necessity, resolve coding discrepancies, and align charting with NCCI edits.",
+                        "Audited patient records for documentation completeness and appropriate modifier application prior to claims submission, reducing preventable rejections.",
+                        "Maintained electronic health records (EHR) in strict compliance with CMS documentation standards, HIPAA privacy rules, and official coding conventions.",
+                        "Prepared clinical justification summaries to assist billing staff in resolving payer documentation requests and pended claims."
+                    ]
                 else:
-                    tailored_highlights.append(
-                        "Delivered comprehensive patient care while maintaining detailed diagnostic and operative clinical records."
-                    )
-                    tailored_highlights.append(
-                        "Reviewed health records for completeness, diagnostic specificity, and clinical consistency to reduce administrative processing rejections."
-                    )
+                    tailored_highlights = [
+                        "Delivered patient care while authoring detailed clinical progress notes, diagnostic evaluations, and procedure records.",
+                        "Reviewed outpatient health records for completeness, diagnostic specificity, and clinical consistency to minimize administrative processing delays.",
+                        "Interfaced with administrative staff to clarify procedure descriptions and verify insurance coverage requirements."
+                    ]
 
             experiences.append({
                 "role": role,
@@ -236,7 +333,7 @@ class TailoredResumeGenerator:
         category = self._determine_role_category(job, match_result)
         headline = self._generate_headline(job, category)
         summary = self._generate_summary(job, match_result, category)
-        skills_dict = self._prioritize_skills(match_result)
+        skills_dict = self._prioritize_skills(match_result, category)
         experiences = self._generate_experience(category)
 
         # Build clean ATS Markdown resume
@@ -326,7 +423,7 @@ class TailoredResumeGenerator:
         category = self._determine_role_category(job, match_result)
         headline = self._generate_headline(job, category)
         summary = self._generate_summary(job, match_result, category)
-        skills_dict = self._prioritize_skills(match_result)
+        skills_dict = self._prioritize_skills(match_result, category)
         experiences = self._generate_experience(category)
         contact_line = f"{self.profile.location} | {self.profile.phone} | {self.profile.email} | AAPC Credentialed CPC"
 

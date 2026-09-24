@@ -1,20 +1,19 @@
 # Sri Lakshmi Sravya Reddy Kovvuri
-**AAPC Certified Professional Coder (CPC) | Risk Adjustment & Clinical Diagnostic Coder**
+**AAPC Certified Professional Coder (CPC) | Risk Adjustment & HCC Diagnostic Coding Specialist**
 Ohio, USA | +1(513)886-0280 | saradec182023@gmail.com | AAPC ID: CPC Credentialed
 
 ---
 
 ## PROFESSIONAL SUMMARY
-AAPC Certified Professional Coder (CPC) possessing strong foundational clinical pathology and diagnostic knowledge from years of direct healthcare delivery. Specially positioned for Optum / UnitedHealth Group's Remote Risk Adjustment Coder (HCC / ICD-10-CM) opening, ensuring strict adherence to CMS risk adjustment guidelines, accurate HCC category assignment, and thorough outpatient chart auditing to support compliant, data-driven reimbursement.
+AAPC Certified Professional Coder (CPC) with direct clinical healthcare training (BDS), bringing strong pathology knowledge to risk adjustment coding and chart auditing. Proficient in ICD-10-CM official coding guidelines, CMS risk adjustment models, and hierarchical condition category (HCC) capture. Experienced in abstracting chronic conditions from outpatient clinical notes, validating that documentation satisfies MEAT criteria (Monitor, Evaluate, Assess, Treat), and upholding data integrity. Prepared to support Optum / UnitedHealth Group with meticulous diagnostic review and compliant risk adjustment reporting.
 
 ---
 
 ## CORE COMPETENCIES & TECHNICAL EXPERTISE
-- **Coding Systems:** ICD-10-CM, CDT Coding (Dental), CPT, E/M Coding, HCPCS Level II, Modifiers
-- **Compliance And Regulations:** CMS Guidelines, HIPAA, Medical Necessity Guidelines, NCCI Edits, OIG Compliance, Payer Policies
-- **Health Information Systems:** Billing Systems, Claims Scrubbers, Electronic Health Records (EHR), Practice Management Systems, Revenue Cycle Management (RCM)
-- **Clinical And Administrative:** Anatomic & Pathologic Terminology, Chart Auditing & Review, Claim Denial Resolution, Clinical Documentation Improvement (CDI), Insurance Claims & Appeals, Prior Authorization
-- **Clinical Dental Expertise:** Dental Charting & Clinical Logs, Dental Procedures & Treatment Planning, Maxillofacial Anatomy, Oral Healthcare & Diagnosis, Periodontics, Endodontics, Oral Surgery Concepts
+- **Medical & Procedural Coding:** ICD-10-CM, CPT, Evaluation & Management (E/M), HCPCS Level II, Modifiers (25, 59)
+- **Regulatory & Healthcare Compliance:** CMS Guidelines, HIPAA Privacy Standards, Medical Necessity Guidelines, NCCI Edits, OIG Compliance, Payer Coverage Policies
+- **Health Information Systems & RCM:** Claims Scrubbers, Electronic Health Records (EHR / Epic), Practice Management Systems, Prior Authorization Workflows, Revenue Cycle Management (RCM)
+- **Clinical Documentation & Review:** Anatomic & Pathologic Terminology, Chart Auditing & Review, Claim Denial Resolution & Appeals, Clinical Documentation Improvement (CDI)
 
 ---
 
@@ -26,14 +25,16 @@ AAPC Certified Professional Coder (CPC) possessing strong foundational clinical 
 ## CLINICAL & HEALTHCARE EXPERIENCE
 ### Dentist & Clinical Documentation Lead
 *SKY Dental Clinic* | Hyderabad, India | **02/2020 – 12/2021**
-- Interpreted provider clinical encounter notes, diagnostic findings, and pathology reports to assign accurate procedural and diagnostic designations.
-- Collaborated daily with administrative billing personnel to verify medical necessity and substantiate reimbursement claims under ICD-10 and CPT coding frameworks.
-- Maintained pristine electronic health records (EHR) adhering strictly to CMS guidelines, HIPAA data security, and official coding conventions.
+- Reviewed comprehensive patient encounter records to abstract documented chronic conditions and comorbidities, ensuring accurate ICD-10-CM code assignment.
+- Verified that clinical notes satisfied MEAT criteria (Monitor, Evaluate, Assess, Treat) to support compliant HCC category assignment and audit readiness.
+- Audited charts for diagnostic specificity and documentation completeness, identifying uncaptured manifestations and secondary diagnoses.
+- Maintained data privacy and strict adherence to CMS official coding and reporting guidelines for risk-adjusted reimbursement.
 
 ### Dentist & Treatment Coordinator
 *Dentalign Multispeciality Dental Clinic* | Goa, India | **10/2018 – 01/2020**
-- Delivered comprehensive patient care while maintaining detailed diagnostic and operative clinical records.
-- Reviewed health records for completeness, diagnostic specificity, and clinical consistency to reduce administrative processing rejections.
+- Conducted clinical examinations and documented complete patient histories, physical assessments, and therapeutic interventions in electronic charts.
+- Reviewed outpatient records for diagnostic completeness and clinical consistency to ensure documentation integrity.
+- Maintained detailed clinical encounter logs upholding healthcare compliance and patient confidentiality standards.
 
 ---
 

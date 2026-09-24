@@ -1,20 +1,20 @@
 # Sri Lakshmi Sravya Reddy Kovvuri
-**AAPC Certified Professional Coder (CPC) & Former Dentist (BDS) | Healthcare Claims Auditor & Appeals Analyst (Remote)**
+**AAPC Certified Professional Coder (CPC) & Former Dentist (BDS) | Healthcare Claims Auditor & Appeals Analyst**
 Ohio, USA | +1(513)886-0280 | saradec182023@gmail.com | AAPC ID: CPC Credentialed
 
 ---
 
 ## PROFESSIONAL SUMMARY
-Detail-oriented Certified Professional Coder (CPC) credentialed by the AAPC, offering a rare and powerful combination of hands-on diagnostic dentistry (Bachelor of Dental Surgery, BDS) and rigorous procedural coding expertise. Uniquely qualified for the Healthcare Claims Auditor & Appeals Analyst (Remote) role at Elevance Health (Anthem), offering deep anatomical fluency in oral and maxillofacial procedures, seamless CDT to CPT/ICD-10-CM cross-coding, and pre-authorization precision. Proven track record reviewing complex clinical logs, verifying medical necessity, and resolving claim denials.
+AAPC Certified Professional Coder (CPC) and former clinical dentist holding a Bachelor of Dental Surgery (BDS), offering comprehensive diagnostic knowledge of oral and maxillofacial anatomy, restorative dentistry, and surgical procedures. Highly proficient in CDT procedure coding, medical cross-coding to CPT and ICD-10-CM, and pre-authorization documentation. Experienced in reviewing operative records, verifying medical necessity, and formulating clinical appeal letters to resolve denied claims. Dedicated to supporting Elevance Health (Anthem) with coding precision, documentation compliance, and efficient revenue turnaround.
 
 ---
 
 ## CORE COMPETENCIES & TECHNICAL EXPERTISE
-- **Coding Systems:** CDT Coding (Dental), CPT, E/M Coding, HCPCS Level II, ICD-10-CM, Modifiers
-- **Compliance And Regulations:** CMS Guidelines, NCCI Edits, HIPAA, Medical Necessity Guidelines, OIG Compliance, Payer Policies
-- **Health Information Systems:** Billing Systems, Claims Scrubbers, Electronic Health Records (EHR), Practice Management Systems, Revenue Cycle Management (RCM)
-- **Clinical And Administrative:** Anatomic & Pathologic Terminology, Chart Auditing & Review, Claim Denial Resolution, Clinical Documentation Improvement (CDI), Insurance Claims & Appeals, Prior Authorization
-- **Clinical Dental Expertise:** Dental Charting & Clinical Logs, Dental Procedures & Treatment Planning, Maxillofacial Anatomy, Oral Healthcare & Diagnosis, Periodontics, Endodontics, Oral Surgery Concepts
+- **Medical & Procedural Coding:** CDT Dental Coding, CPT, Evaluation & Management (E/M), HCPCS Level II, ICD-10-CM, Modifiers (25, 59)
+- **Regulatory & Healthcare Compliance:** CMS Guidelines, NCCI Edits, HIPAA Privacy Standards, Medical Necessity Guidelines, OIG Compliance, Payer Coverage Policies
+- **Health Information Systems & RCM:** Claims Scrubbers, Electronic Health Records (EHR / Epic), Practice Management Systems, Prior Authorization Workflows, Revenue Cycle Management (RCM)
+- **Clinical Documentation & Review:** Anatomic & Pathologic Terminology, Chart Auditing & Review, Claim Denial Resolution & Appeals, Clinical Documentation Improvement (CDI)
+- **Clinical Dental Specialties:** Dental Charting & Clinical Records, Dental Procedures & Treatment Planning, Maxillofacial Anatomy, Oral Healthcare & Diagnosis
 
 ---
 
@@ -26,15 +26,16 @@ Detail-oriented Certified Professional Coder (CPC) credentialed by the AAPC, off
 ## CLINICAL & HEALTHCARE EXPERIENCE
 ### Dentist & Clinical Documentation Lead
 *SKY Dental Clinic* | Hyderabad, India | **02/2020 – 12/2021**
-- Managed end-to-end clinical charting and electronic procedural documentation for oral surgical, restorative, and periodontal cases, ensuring CDT accuracy.
-- Partnered with practice billing personnel to facilitate cross-coding dental procedures to medical insurance carriers (CPT and ICD-10-CM) to optimize legitimate patient reimbursement.
-- Conducted pre-authorization chart reviews, resolved claims denials through clinical justification letters, and upheld HIPAA healthcare privacy guidelines.
+- Directed clinical charting and electronic procedure documentation for complex surgical, restorative, and periodontal cases, ensuring CDT code accuracy.
+- Collaborated closely with practice billing personnel to cross-code oral surgical procedures to medical carriers using CPT, ICD-10-CM, and HCPCS Level II codes.
+- Conducted pre-authorization chart reviews, prepared clinical necessity appeal narratives for denied claims, and maintained compliance with HIPAA privacy standards.
+- Standardized electronic clinical note templates across care teams to ensure documentation completeness and expedite insurance reimbursement turnaround.
 
 ### Dentist & Treatment Coordinator
 *Dentalign Multispeciality Dental Clinic* | Goa, India | **10/2018 – 01/2020**
-- Maintained comprehensive dental clinical logs and diagnostic treatment records for high-volume outpatient patient populations.
-- Cross-referenced patient charts against insurance carrier coverage guidelines, reducing administrative claim submission rejections.
-- Educated clinical and administrative support teams on precise terminology for tooth numbering, quadrant descriptors, and procedural complexity.
+- Conducted comprehensive patient diagnostic examinations and surgical treatments while authoring detailed operative logs and treatment plans.
+- Reviewed patient charts against insurance carrier coverage criteria to eliminate documentation discrepancies and prevent claim rejections.
+- Educated administrative staff on anatomical descriptors, tooth numbering conventions, and procedural complexity to improve billing accuracy.
 
 ---
 
