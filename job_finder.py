@@ -30,7 +30,7 @@ CURATED_HEALTHCARE_JOBS = [
             "documentation queries. Requirements: Active AAPC CPC or AHIMA certification, strong anatomy and physiology "
             "foundation, and familiarity with EHR/Epic billing systems."
         ),
-        url="https://jobs.clevelandclinic.org",
+        url="https://ccf.wd1.myworkdayjobs.com/en-US/ClevelandClinicCareers?q=Medical+Coder",
         posted_date="2026-09-20",
         salary_range="$28 - $36 / hour",
         employment_type="Full-time",
@@ -50,7 +50,7 @@ CURATED_HEALTHCARE_JOBS = [
             "electronic health records (EHR), identifying clarification opportunities with providers, and ensuring adherence "
             "to CMS guidelines, HIPAA, and coding accuracy."
         ),
-        url="https://www.ohiohealth.com/careers",
+        url="https://careers.ohiohealth.com/us/en/search-results?keywords=Medical%20Coder",
         posted_date="2026-09-18",
         salary_range="$72,000 - $88,000 / year",
         employment_type="Full-time",
@@ -69,7 +69,7 @@ CURATED_HEALTHCARE_JOBS = [
             "codes, verifying modifiers (25, 59), and ensuring compliance with payer guidelines and OIG standards. "
             "Must hold active CPC from AAPC or equivalent."
         ),
-        url="https://www.premierhealth.com/careers",
+        url="https://www.premierhealth.com/about-us/careers?q=Coding",
         posted_date="2026-09-21",
         salary_range="$27 - $34 / hour",
         employment_type="Full-time",
@@ -89,7 +89,7 @@ CURATED_HEALTHCARE_JOBS = [
             "or dental coding credential are uniquely positioned for this high-impact position. Responsibilities include claims "
             "submission, pre-authorization, patient chart review, and appealing denied claims."
         ),
-        url="https://heartland.com/careers",
+        url="https://jobs.heartland.com/search/jobs?q=Dental+Billing",
         posted_date="2026-09-22",
         salary_range="$65,000 - $80,000 / year",
         employment_type="Full-time",
@@ -108,7 +108,7 @@ CURATED_HEALTHCARE_JOBS = [
             "strict CMS official guidelines. Requirements: CPC or CRC credential from AAPC. Candidate must possess rigorous "
             "understanding of medical conditions, chronic disease pathology, and chart auditing."
         ),
-        url="https://careers.unitedhealthgroup.com",
+        url="https://careers.unitedhealthgroup.com/search-jobs/Medical%20Coder/Remote",
         posted_date="2026-09-19",
         salary_range="$29 - $38 / hour",
         employment_type="Full-time",
@@ -127,7 +127,7 @@ CURATED_HEALTHCARE_JOBS = [
             "notes for completeness, assists clinical staff with documentation compliance, and resolves billing inquiries. "
             "AAPC Certified Professional Coder (CPC) required. Clinical background is a substantial asset."
         ),
-        url="https://www.childrensdayton.org/careers",
+        url="https://daytonchildrens.wd1.myworkdayjobs.com/dayton_childrens_career_site?q=Coder",
         posted_date="2026-09-22",
         salary_range="$30 - $37 / hour",
         employment_type="Full-time",
@@ -145,7 +145,7 @@ CURATED_HEALTHCARE_JOBS = [
             "Conduct chart reviews, identify documentation deficiencies, ensure compliance with NCCI edits and CMS policy, "
             "and prepare appeal determinations. CPC or clinical degree required."
         ),
-        url="https://careers.elevancehealth.com",
+        url="https://careers.elevancehealth.com/search-jobs/Medical%20Coder",
         posted_date="2026-09-17",
         salary_range="$68,000 - $82,000 / year",
         employment_type="Full-time",
@@ -163,7 +163,7 @@ CURATED_HEALTHCARE_JOBS = [
             "and provider education. Focus on E/M guidelines, procedure coding, and bridging clinical intent with billing rules. "
             "AAPC CPC certification required. Experience interfacing with clinical teams to clarify chart entries is essential."
         ),
-        url="https://uchealth.com/careers",
+        url="https://careers.uchealth.com/search/jobs?q=Coder",
         posted_date="2026-09-23",
         salary_range="$31 - $39 / hour",
         employment_type="Full-time",
