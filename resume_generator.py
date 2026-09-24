@@ -480,12 +480,12 @@ def main() -> None:
             clean_company = "".join(c for c in job.company if c.isalnum() or c in (" ", "_", "-")).replace(" ", "_")
 
             # 1. Markdown version
-            md_file = out_dir / f"Resume_{job.id}_{clean_company}.md"
+            md_file = out_dir / f"Sri_Kovvuri_Resume_{job.id}_{clean_company}.md"
             resume_content = generator.generate(job, res)
             md_file.write_text(resume_content, encoding="utf-8")
 
             # 2. PDF version
-            pdf_file = out_dir / f"Resume_{job.id}_{clean_company}.pdf"
+            pdf_file = out_dir / f"Sri_Kovvuri_Resume_{job.id}_{clean_company}.pdf"
             generator.generate_pdf(job, pdf_file, res)
 
             print(f"  ✓ [{res.score}% Fit] Generated: {pdf_file.name} & {md_file.name}")
@@ -533,7 +533,7 @@ def main() -> None:
     is_pdf = args.pdf or (args.output and args.output.lower().endswith(".pdf"))
 
     if is_pdf:
-        out_filename = args.output or f"Resume_{target_job.company.replace(' ', '_')}.pdf"
+        out_filename = args.output or f"Sri_Kovvuri_Resume_{target_job.company.replace(' ', '_')}.pdf"
         out_path = Path(out_filename)
         generator.generate_pdf(target_job, out_path, match_res)
         print(f"\n🎉 Successfully compiled tailored ATS PDF resume to: {out_path.resolve()}\n")

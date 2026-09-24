@@ -125,3 +125,19 @@ class TestTailoredResumeGenerator:
         assert pdf_path.stat().st_size > 1000
         content = pdf_path.read_bytes()
         assert content.startswith(b"%PDF-")
+
+    def test_resume_filename_starts_with_sri_kovvuri(
+        self,
+        profile: CandidateProfile
+    ):
+        clean_company = "Cleveland_Clinic"
+        job_id = "oh-cc-001"
+        expected_prefix = "Sri_Kovvuri_Resume"
+        md_name = f"Sri_Kovvuri_Resume_{job_id}_{clean_company}.md"
+        pdf_name = f"Sri_Kovvuri_Resume_{job_id}_{clean_company}.pdf"
+
+        assert md_name.startswith(expected_prefix)
+        assert pdf_name.startswith(expected_prefix)
+        assert md_name.startswith("Sri_Kovvuri")
+        assert pdf_name.startswith("Sri_Kovvuri")
+

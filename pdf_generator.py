@@ -172,7 +172,7 @@ class ResumePDFGenerator:
             rightMargin=36,
             topMargin=36,
             bottomMargin=36,
-            title=f"{candidate_name} - Resume",
+            title=f"Sri_Kovvuri_Resume - {candidate_name}",
             author=candidate_name,
             subject=headline,
             creator="Professional Resume Compiler",

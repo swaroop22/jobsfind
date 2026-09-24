@@ -173,12 +173,12 @@ def resume_command(
             clean_co = "".join(c for c in job.company if c.isalnum() or c in (" ", "_", "-")).replace(" ", "_")
 
             # Markdown
-            out_file_md = out_dir / f"Resume_{job.id}_{clean_co}.md"
+            out_file_md = out_dir / f"Sri_Kovvuri_Resume_{job.id}_{clean_co}.md"
             resume_text = gen.generate(job, res)
             out_file_md.write_text(resume_text, encoding="utf-8")
 
             # PDF
-            out_file_pdf = out_dir / f"Resume_{job.id}_{clean_co}.pdf"
+            out_file_pdf = out_dir / f"Sri_Kovvuri_Resume_{job.id}_{clean_co}.pdf"
             gen.generate_pdf(job, out_file_pdf, res)
 
             print(f"  ✓ [{res.score}% Fit] Saved: {out_file_pdf.name} & {out_file_md.name}")
@@ -220,7 +220,7 @@ def resume_command(
     is_pdf = args.pdf or (args.save and args.save.lower().endswith(".pdf"))
 
     if is_pdf:
-        save_path = Path(args.save or f"Resume_{target_job.company.replace(' ', '_')}.pdf")
+        save_path = Path(args.save or f"Sri_Kovvuri_Resume_{target_job.company.replace(' ', '_')}.pdf")
         gen.generate_pdf(target_job, save_path, result)
         print(f"\nSaved tailored ATS PDF resume to: {save_path.resolve()}")
     elif args.save:

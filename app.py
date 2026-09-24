@@ -234,7 +234,7 @@ with tab_explore:
                 st.download_button(
                     label="📄 Resume (.md)",
                     data=card_resume,
-                    file_name=f"Resume_{job.company.replace(' ', '_')}.md",
+                    file_name=f"Sri_Kovvuri_Resume_{job.company.replace(' ', '_')}.md",
                     mime="text/markdown",
                     key=f"res_dl_{job.id}"
                 )
@@ -244,7 +244,7 @@ with tab_explore:
                 st.download_button(
                     label="📥 Resume (.pdf)",
                     data=pdf_buf.getvalue(),
-                    file_name=f"Resume_{job.company.replace(' ', '_')}.pdf",
+                    file_name=f"Sri_Kovvuri_Resume_{job.company.replace(' ', '_')}.pdf",
                     mime="application/pdf",
                     key=f"pdf_dl_{job.id}"
                 )
@@ -335,14 +335,14 @@ with tab_ats:
                 st.download_button(
                     label="📥 Download Resume (.pdf)",
                     data=cust_pdf_buf.getvalue(),
-                    file_name=f"Tailored_Resume_{custom_company.replace(' ', '_')}.pdf",
+                    file_name=f"Sri_Kovvuri_Resume_{custom_company.replace(' ', '_')}.pdf",
                     mime="application/pdf"
                 )
             with col_cust_dl2:
                 st.download_button(
                     label="📥 Download Resume (.md)",
                     data=custom_resume,
-                    file_name=f"Tailored_Resume_{custom_company.replace(' ', '_')}.md",
+                    file_name=f"Sri_Kovvuri_Resume_{custom_company.replace(' ', '_')}.md",
                     mime="text/markdown"
                 )
             with st.expander("Preview Tailored Resume"):
@@ -376,7 +376,7 @@ with tab_resume:
             st.download_button(
                 label="📥 Download Tailored Resume (.pdf)",
                 data=tab_pdf_buf.getvalue(),
-                file_name=f"Resume_{target_j.company.replace(' ', '_')}.pdf",
+                file_name=f"Sri_Kovvuri_Resume_{target_j.company.replace(' ', '_')}.pdf",
                 mime="application/pdf",
                 key="dl_resume_pdf_tab"
             )
@@ -384,7 +384,7 @@ with tab_resume:
             st.download_button(
                 label="📥 Download Tailored Resume (.md)",
                 data=tailored_res,
-                file_name=f"Resume_{target_j.company.replace(' ', '_')}.md",
+                file_name=f"Sri_Kovvuri_Resume_{target_j.company.replace(' ', '_')}.md",
                 mime="text/markdown",
                 key="dl_resume_tab"
             )
