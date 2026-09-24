@@ -1,23 +1,35 @@
 """
 Targeted cover letter and application narrative generator for Sri Lakshmi Sravya Reddy Kovvuri.
 Customized for Medical Coding, Dental Coding, CDI, and Revenue Cycle roles.
+Generates dynamic, professional letters tailored to employer requirements and match results.
 """
 
+import logging
 from datetime import datetime
 from models import CandidateProfile, JobPosting, MatchResult
 
+logger = logging.getLogger(__name__)
+
 
 class CoverLetterGenerator:
+    """Enterprise narrative generator creating tailored cover letters."""
+
     def __init__(self, profile: CandidateProfile):
         self.profile = profile
 
     def generate(self, job: JobPosting, match_result: MatchResult) -> str:
         """
         Generate a compelling, personalized cover letter addressing the employer's specific job description.
+
+        Args:
+            job: The target JobPosting.
+            match_result: The ATS MatchResult containing matched skills and domain signals.
+
+        Returns:
+            Formatted, ready-to-submit cover letter string.
         """
         date_str = datetime.now().strftime("%B %d, %Y")
         is_dental = match_result.is_dental_relevant
-        is_cpc = match_result.is_cpc_required
 
         # Dynamic introductory hook
         if is_dental:
@@ -46,7 +58,11 @@ class CoverLetterGenerator:
         )
 
         # Dynamic body paragraph 2: Technical coding standards and compliance
-        matched_str = ", ".join(match_result.matched_skills[:5]) if match_result.matched_skills else "ICD-10-CM, CPT, and HCPCS Level II"
+        matched_str = (
+            ", ".join(match_result.matched_skills[:5])
+            if match_result.matched_skills
+            else "ICD-10-CM, CPT, and HCPCS Level II"
+        )
         body_technical = (
             f"My technical expertise aligns directly with the requirements at {job.company}, including proficiency in {matched_str}. "
             f"I strictly adhere to CMS guidelines, NCCI edits, HIPAA privacy protocols, and payer coverage determinations to "
@@ -90,6 +106,7 @@ Sincerely,
 {self.profile.name}
 AAPC Certified Professional Coder (CPC)
 Bachelor of Dental Surgery (BDS)
-saradec182023@gmail.com | +1(513)886-0280
+{self.profile.email} | {self.profile.phone}
 """
+        logger.debug("Generated cover letter for job %s at %s", job.id, job.company)
         return cover_letter.strip()

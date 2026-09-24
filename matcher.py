@@ -1,14 +1,26 @@
 """
 Intelligent ATS Job Matcher and Analyzer tailored to Sri Lakshmi Sravya Reddy Kovvuri's profile.
+Evaluates job postings against clinical credentials, coding standards, and medical terminology.
 """
 
 import re
-from typing import List, Dict, Tuple, Set
+import logging
+from typing import List, Dict, Tuple, Set, Optional
 from models import CandidateProfile, JobPosting, MatchResult
+
+logger = logging.getLogger(__name__)
 
 
 class ATSMatcher:
+    """Enterprise ATS Matcher and scoring engine."""
+
     def __init__(self, profile: CandidateProfile):
+        """
+        Initialize the matcher with a CandidateProfile.
+
+        Args:
+            profile: Loaded and validated CandidateProfile.
+        """
         self.profile = profile
 
         # Skill categories and their importance weights (0.0 to 1.0)
@@ -85,23 +97,31 @@ class ATSMatcher:
             }
         }
 
-    def _clean_text(self, text: str) -> str:
+    def _clean_text(self, text: Optional[str]) -> str:
+        """Sanitize text by replacing special characters and lowercasing."""
+        if not text:
+            return ""
         return re.sub(r"[^\w\s\-/]", " ", text.lower())
 
     def match(self, job: JobPosting) -> MatchResult:
         """
         Evaluate a job posting against candidate's profile.
+
+        Args:
+            job: JobPosting instance.
+
+        Returns:
+            MatchResult containing score, matched skills, gaps, strengths, and pitch.
         """
-        full_text = f"{job.title} {job.description}".lower()
+        job_title = job.title or ""
+        job_desc = job.description or ""
+        full_text = f"{job_title} {job_desc}".lower()
         cleaned_text = self._clean_text(full_text)
 
-        total_weighted_score = 0.0
-        max_possible_weight = 0.0
-
-        matched_skills = set()
-        missing_skills = set()
-        strengths = []
-        improvement_tips = []
+        matched_skills: Set[str] = set()
+        missing_skills: Set[str] = set()
+        strengths: List[str] = []
+        improvement_tips: List[str] = []
 
         is_cpc_required = bool(re.search(r"\b(cpc|certified professional coder)\b", cleaned_text))
         is_dental_relevant = bool(re.search(r"\b(dental|dentistry|oral|bds|cdt)\b", cleaned_text))
@@ -109,15 +129,15 @@ class ATSMatcher:
 
         # Find total domain keyword hits in the job
         domain_hits = 0
-        cat_scores = []
-        cat_weights = []
+        cat_scores: List[float] = []
+        cat_weights: List[float] = []
 
         for cat_name, cat_data in self.taxonomy.items():
-            cat_weight = cat_data["weight"]
+            cat_weight = float(cat_data["weight"])
             keywords_dict = cat_data["keywords"]
             candidate_keywords = set(cat_data["profile_has"])
 
-            found_in_job = []
+            found_in_job: List[Tuple[str, str]] = []
             for kw_key, kw_label in keywords_dict.items():
                 pattern = r"\b" + re.escape(kw_key) + r"\b"
                 if re.search(pattern, cleaned_text):
@@ -143,37 +163,36 @@ class ATSMatcher:
         else:
             # Score based on candidate's coverage of the job's stated requirements
             sum_weights = sum(cat_weights)
-            coverage_score = (sum(cat_scores) / sum_weights) * 100 if sum_weights > 0 else 20.0
-            # Scale slightly with domain density
+            coverage_score = (sum(cat_scores) / sum_weights) * 100.0 if sum_weights > 0 else 20.0
             density_factor = min(1.0, domain_hits / 3.0)
             raw_score = coverage_score * (0.6 + 0.4 * density_factor)
 
         # High-impact bonuses:
-        # 1. CPC match bonus: If job asks for CPC, and candidate has active CPC, award bonus
+        # 1. CPC match bonus
         if is_cpc_required:
             raw_score = min(100.0, raw_score + 15.0)
             strengths.append("Direct match on primary certification: Certified Professional Coder (CPC) credentialed by AAPC.")
 
-        # 2. Dental synergy bonus: If the role touches Dental billing/coding, Dentist background is a huge differentiator
+        # 2. Dental synergy bonus
         if is_dental_relevant:
             raw_score = min(100.0, raw_score + 20.0)
             strengths.append("Exceptional Advantage: Former licensed Dentist (BDS) applying for dental coding/claims with deep clinical anatomy understanding.")
 
-        # 3. Location bonus: If job is in Ohio or Remote
-        job_loc_lower = job.location.lower()
+        # 3. Location bonus
+        job_loc_lower = (job.location or "").lower()
         if job.is_remote or "remote" in job_loc_lower:
             strengths.append("Remote Flexibility: Role is Remote/Hybrid, ideal for home-based coding workflows.")
         elif "oh" in job_loc_lower or "ohio" in job_loc_lower:
             strengths.append("Local Advantage: Position is located in candidate's home state of Ohio.")
 
         # Title alignment check
-        title_lower = job.title.lower()
+        title_lower = job_title.lower()
         for target in self.profile.target_roles:
             if target.lower() in title_lower or any(word in title_lower for word in ["coder", "coding", "cdi", "claims", "billing"]):
                 strengths.append(f"Target Role Match: Job title aligns directly with '{target}'.")
                 break
 
-        # If zero domain hits and no relevant title, keep score strictly low
+        # If zero domain hits and no relevant title, cap score low
         if domain_hits == 0 and not any(w in title_lower for w in ["coder", "coding", "claims", "billing", "cdi", "dental"]):
             raw_score = min(raw_score, 25.0)
 
@@ -204,6 +223,7 @@ class ATSMatcher:
             )
 
         final_score = round(min(100.0, max(20.0, raw_score)), 1)
+        logger.debug("Matched job '%s' (ID: %s) -> Score: %.1f", job.title, job.id, final_score)
 
         return MatchResult(
             job=job,

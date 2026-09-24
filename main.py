@@ -1,19 +1,26 @@
-import warnings
-warnings.filterwarnings("ignore")
+"""
+Command-line interface (CLI) for JobsFind Career Navigator and ATS Matcher.
+Provides commands for searching jobs, evaluating ATS match, and generating cover letters.
+"""
+
 import argparse
 import sys
+import logging
 from pathlib import Path
+from typing import Optional
+
+from config import settings, setup_logging
+from exceptions import JobsFindError, ProfileError
 from models import CandidateProfile, JobPosting
 from matcher import ATSMatcher
 from job_finder import JobFinderService
 from cover_letter import CoverLetterGenerator
-from tracker import ApplicationTracker
+
+logger = logging.getLogger("jobsfind.cli")
 
 
-PROFILE_PATH = Path(__file__).parent / "resume_profile.json"
-
-
-def display_profile(profile: CandidateProfile):
+def display_profile(profile: CandidateProfile) -> None:
+    """Print formatted summary of candidate profile."""
     print("=" * 70)
     print(f"CANDIDATE: {profile.name}")
     print(f"TITLE:     {profile.title}")
@@ -34,8 +41,9 @@ def display_profile(profile: CandidateProfile):
     print("=" * 70)
 
 
-def search_command(finder: JobFinderService, matcher: ATSMatcher, args):
-    print(f"\nSearching jobs (Location: {args.location}, Keywords: {args.keywords or 'All'})...\n")
+def search_command(finder: JobFinderService, matcher: ATSMatcher, args: argparse.Namespace) -> None:
+    """Search and score job postings based on CLI arguments."""
+    print(f"\nSearching jobs (Location: {args.location}, Category: {args.category}, Keywords: {args.keywords or 'All'})...\n")
     jobs = finder.search_jobs(
         keywords=args.keywords,
         location_filter=args.location,
@@ -58,14 +66,19 @@ def search_command(finder: JobFinderService, matcher: ATSMatcher, args):
         print("-" * 65)
 
 
-def match_text_command(matcher: ATSMatcher, args):
+def match_text_command(matcher: ATSMatcher, args: argparse.Namespace) -> None:
+    """Evaluate raw job description text from file or argument against candidate profile."""
     content = ""
     if args.file:
-        content = Path(args.file).read_text(encoding="utf-8")
+        file_path = Path(args.file)
+        if not file_path.is_file():
+            print(f"Error: Job description file not found: {args.file}", file=sys.stderr)
+            sys.exit(1)
+        content = file_path.read_text(encoding="utf-8")
     elif args.text:
         content = args.text
     else:
-        print("Please provide job text via --text or --file.")
+        print("Error: Please provide job text via --text or --file.", file=sys.stderr)
         sys.exit(1)
 
     temp_job = JobPosting(
@@ -100,21 +113,29 @@ def match_text_command(matcher: ATSMatcher, args):
     print("=" * 70)
 
 
-def cover_letter_command(profile: CandidateProfile, finder: JobFinderService, matcher: ATSMatcher, args):
+def cover_letter_command(
+    profile: CandidateProfile,
+    finder: JobFinderService,
+    matcher: ATSMatcher,
+    args: argparse.Namespace
+) -> None:
+    """Generate and optionally save a tailored cover letter."""
     gen = CoverLetterGenerator(profile)
-    target_job = None
+    target_job: Optional[JobPosting] = None
     if args.id:
         for j in finder.cached_jobs:
             if j.id == args.id:
                 target_job = j
                 break
+        if not target_job:
+            print(f"Warning: Curated job ID '{args.id}' not found. Generating with generic parameters.", file=sys.stderr)
 
     if not target_job:
         target_job = JobPosting(
-            id="target-01",
+            id=args.id or "target-01",
             title=args.title or "Certified Medical Coder",
             company=args.company or "Healthcare Organization",
-            location=args.location or "Ohio",
+            location="Ohio / Remote",
             is_remote=True,
             description="Seeking CPC certified coder with clinical documentation and ICD-10 knowledge."
         )
@@ -133,17 +154,26 @@ def cover_letter_command(profile: CandidateProfile, finder: JobFinderService, ma
         print(f"\nSaved cover letter to: {out_path.resolve()}")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Job Finder & ATS Matcher for Sri Lakshmi Sravya Reddy Kovvuri")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+def build_parser() -> argparse.ArgumentParser:
+    """Construct CLI argument parser."""
+    parser = argparse.ArgumentParser(
+        prog="jobsfind",
+        description="JobsFind: Enterprise Career Navigator & ATS Job Matcher"
+    )
+    subparsers = parser.add_subparsers(dest="command", help="Available subcommands")
 
     # Profile command
     subparsers.add_parser("profile", help="Display candidate profile and extracted resume skills")
 
     # Search command
     search_p = subparsers.add_parser("search", help="Search curated and remote job listings")
-    search_p.add_argument("--location", default="All", choices=["All", "Ohio Only", "Remote Only"])
-    search_p.add_argument("--category", default="All", choices=["All", "Medical Coding", "Clinical Documentation Improvement", "Dental Coding & Cross-Coding", "Revenue Cycle & Denials"])
+    search_p.add_argument("--location", default="All", choices=["All", "Ohio Only", "Remote Only"], help="Filter by location")
+    search_p.add_argument(
+        "--category",
+        default="All",
+        choices=["All", "Medical Coding", "Clinical Documentation Improvement", "Dental Coding & Cross-Coding", "Revenue Cycle & Denials"],
+        help="Filter by role category"
+    )
     search_p.add_argument("--keywords", default=None, help="Filter keywords (e.g. 'cpc', 'dental', 'cdi')")
     search_p.add_argument("--live", action="store_true", help="Include live remote public feeds")
 
@@ -162,9 +192,21 @@ def main():
     cl_p.add_argument("--company", help="Custom company name")
     cl_p.add_argument("--save", help="Optional output text filename to save")
 
+    return parser
+
+
+def main() -> None:
+    """Entry point for CLI execution."""
+    setup_logging()
+    parser = build_parser()
     args = parser.parse_args()
 
-    profile = CandidateProfile.load_from_json(PROFILE_PATH)
+    try:
+        profile = CandidateProfile.load_from_json(settings.profile_path)
+    except ProfileError as exc:
+        print(f"Configuration Error: {exc}", file=sys.stderr)
+        sys.exit(1)
+
     matcher = ATSMatcher(profile)
     finder = JobFinderService()
 

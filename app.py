@@ -1,14 +1,24 @@
-import warnings
-warnings.filterwarnings("ignore")
-import streamlit as st
+"""
+Streamlit Web Dashboard for JobsFind: Career Navigator & ATS Job Matcher.
+Tailored for Sri Lakshmi Sravya Reddy Kovvuri: AAPC Certified Professional Coder (CPC) & Former Dentist (BDS).
+"""
+
+import sys
+import logging
 from pathlib import Path
+from typing import Tuple, Optional
 import pandas as pd
-from models import CandidateProfile, JobPosting
+import streamlit as st
+
+from config import settings, setup_logging
+from exceptions import ProfileError, DatabaseError
+from models import CandidateProfile, JobPosting, MatchResult, ApplicationStatus
 from matcher import ATSMatcher
 from job_finder import JobFinderService
 from cover_letter import CoverLetterGenerator
 from tracker import ApplicationTracker
 
+logger = setup_logging()
 
 # Page Configuration
 st.set_page_config(
@@ -88,16 +98,29 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# Initialize Services
+# Initialize Services with Error Boundary
 @st.cache_resource
-def load_services():
-    profile_path = Path(__file__).parent / "resume_profile.json"
-    profile = CandidateProfile.load_from_json(profile_path)
+def load_services() -> Tuple[CandidateProfile, ATSMatcher, JobFinderService, CoverLetterGenerator, ApplicationTracker]:
+    """Load core application services with central configuration and caching."""
+    try:
+        profile = CandidateProfile.load_from_json(settings.profile_path)
+    except ProfileError as exc:
+        logger.error("Failed to load profile from %s: %s", settings.profile_path, exc)
+        st.error(f"⚠️ Critical Error: Failed to load candidate profile: {exc}")
+        st.stop()
+
     matcher = ATSMatcher(profile)
     finder = JobFinderService()
     generator = CoverLetterGenerator(profile)
-    tracker = ApplicationTracker()
+    try:
+        tracker = ApplicationTracker(db_path=settings.db_path)
+    except DatabaseError as exc:
+        logger.error("Failed to connect to database at %s: %s", settings.db_path, exc)
+        st.error(f"⚠️ Database Error: {exc}")
+        st.stop()
+
     return profile, matcher, finder, generator, tracker
+
 
 profile, matcher, finder, generator, tracker = load_services()
 
@@ -187,15 +210,18 @@ with tab_explore:
             btn_col1, btn_col2, btn_col3 = st.columns([1.5, 1.5, 5])
             with btn_col1:
                 if st.button("Save to Tracker", key=f"save_{job.id}"):
-                    tracker.add_application(
-                        job_title=job.title,
-                        company=job.company,
-                        location=job.location,
-                        status="Saved",
-                        match_score=res.score,
-                        job_url=job.url
-                    )
-                    st.success("Saved to application tracker!")
+                    try:
+                        tracker.add_application(
+                            job_title=job.title,
+                            company=job.company,
+                            location=job.location,
+                            status=ApplicationStatus.SAVED.value,
+                            match_score=res.score,
+                            job_url=job.url
+                        )
+                        st.success("Saved to application tracker!")
+                    except DatabaseError as exc:
+                        st.error(f"Failed to save application: {exc}")
             with btn_col2:
                 if st.button("Generate Pitch", key=f"pitch_{job.id}"):
                     st.info(f"**Application Strategy:** {res.recommended_pitch}")
@@ -356,23 +382,26 @@ with tab_tracker:
                 app_company = st.text_input("Company Name", "Cincinnati Children's")
                 app_loc = st.text_input("Location", "Cincinnati, OH / Remote")
             with form_col2:
-                app_status = st.selectbox("Status", ["Saved", "Applied", "Interviewing", "Offer", "Rejected"])
+                app_status = st.selectbox("Status", ApplicationStatus.values())
                 app_score = st.number_input("Match Score %", min_value=0.0, max_value=100.0, value=85.0)
                 app_url = st.text_input("Job Link / URL", "")
             app_notes = st.text_area("Notes", "Submitted application through hospital portal with tailored dentist+CPC resume.")
             submitted = st.form_submit_button("Save Application")
             if submitted:
-                tracker.add_application(
-                    job_title=app_title,
-                    company=app_company,
-                    location=app_loc,
-                    status=app_status,
-                    match_score=app_score,
-                    notes=app_notes,
-                    job_url=app_url
-                )
-                st.success("Application saved successfully!")
-                st.rerun()
+                try:
+                    tracker.add_application(
+                        job_title=app_title,
+                        company=app_company,
+                        location=app_loc,
+                        status=app_status,
+                        match_score=app_score,
+                        notes=app_notes,
+                        job_url=app_url
+                    )
+                    st.success("Application saved successfully!")
+                    st.rerun()
+                except Exception as exc:
+                    st.error(f"Failed to record application: {exc}")
 
     # Display Table
     df = tracker.to_dataframe()

@@ -1,11 +1,19 @@
 """
 Job Finder service combining real-time public remote job feeds with curated healthcare listings
 targeted for Ohio and Remote Certified Medical Coders, Dental Coders, and CDI Specialists.
+Provides HTTP retry strategies, resilient fallback, and structured telemetry.
 """
 
+import logging
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from typing import List, Optional
+
+from config import settings
 from models import JobPosting
+
+logger = logging.getLogger(__name__)
 
 
 CURATED_HEALTHCARE_JOBS = [
@@ -166,18 +174,44 @@ CURATED_HEALTHCARE_JOBS = [
 
 
 class JobFinderService:
-    def __init__(self):
+    """Service for discovering, filtering, and aggregating curated and remote jobs."""
+
+    def __init__(self, session: Optional[requests.Session] = None):
         self.cached_jobs: List[JobPosting] = list(CURATED_HEALTHCARE_JOBS)
+        self.session = session or self._create_session()
+
+    def _create_session(self) -> requests.Session:
+        """Create a resilient requests Session with retry backoff."""
+        session = requests.Session()
+        retries = Retry(
+            total=settings.max_retries,
+            backoff_factor=0.5,
+            status_forcelist=[429, 500, 502, 503, 504],
+            raise_on_status=False
+        )
+        adapter = HTTPAdapter(max_retries=retries)
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
+        return session
 
     def fetch_live_remote_jobs(self, query: str = "medical coder") -> List[JobPosting]:
         """
-        Query public remote job APIs (Jobicy / Remotive) for live listings.
-        Safely falls back to curated database on connection issues.
+        Query public remote job APIs for live listings with retry backoff.
+        Gracefully falls back to curated database on network failure.
+
+        Args:
+            query: Tag or keyword to query live API.
+
+        Returns:
+            List of JobPosting objects retrieved from live feed.
         """
-        live_jobs = []
+        live_jobs: List[JobPosting] = []
+        clean_query = query.replace(" ", "+")
+        url = f"{settings.jobicy_api_url}?count=15&tag={clean_query}"
+
         try:
-            url = f"https://jobicy.com/api/v2/remote-jobs?count=15&tag={query.replace(' ', '+')}"
-            resp = requests.get(url, timeout=5)
+            logger.debug("Requesting live remote jobs from %s", url)
+            resp = self.session.get(url, timeout=settings.http_timeout)
             if resp.status_code == 200:
                 data = resp.json()
                 for item in data.get("jobs", []):
@@ -197,34 +231,48 @@ class JobFinderService:
                             category="Remote Healthcare"
                         )
                     )
-        except Exception:
-            # Silent fallback to curated database if network or API is unavailable
-            pass
+                logger.info("Retrieved %d live remote jobs from API", len(live_jobs))
+            else:
+                logger.warning("Remote job feed returned status code %d", resp.status_code)
+        except Exception as exc:
+            logger.warning("Live remote job feed unavailable: %s. Using curated listings.", exc)
+
         return live_jobs
 
     def search_jobs(
         self,
         keywords: Optional[str] = None,
-        location_filter: str = "All",  # "All", "Ohio Only", "Remote Only"
+        location_filter: str = "All",
         category_filter: str = "All",
         include_live: bool = True
     ) -> List[JobPosting]:
         """
-        Filter jobs by keywords, location, and category.
+        Filter jobs by keywords, location, and role category.
+
+        Args:
+            keywords: Space-separated search terms.
+            location_filter: "All", "Ohio Only", or "Remote Only".
+            category_filter: Category name or "All".
+            include_live: Whether to attempt querying live remote job feeds.
+
+        Returns:
+            Filtered list of JobPosting instances.
         """
         all_jobs = list(self.cached_jobs)
         if include_live:
             live = self.fetch_live_remote_jobs("medical coder")
             all_jobs.extend(live)
 
-        filtered = []
+        filtered: List[JobPosting] = []
         for job in all_jobs:
             # Location filtering
             if location_filter == "Ohio Only":
-                if not ("oh" in job.location.lower() or "ohio" in job.location.lower()):
+                loc_lower = job.location.lower()
+                if not ("oh" in loc_lower or "ohio" in loc_lower):
                     continue
             elif location_filter == "Remote Only":
-                if not job.is_remote and "remote" not in job.location.lower():
+                loc_lower = job.location.lower()
+                if not job.is_remote and "remote" not in loc_lower:
                     continue
 
             # Category filtering
@@ -240,4 +288,5 @@ class JobFinderService:
 
             filtered.append(job)
 
+        logger.debug("search_jobs matched %d / %d jobs", len(filtered), len(all_jobs))
         return filtered

@@ -1,14 +1,27 @@
-# Virtual environment
+# Virtual environments
 .venv/
 venv/
 ENV/
+env/
 
-# Python cache
+# Python cache & build
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+build/
+dist/
+*.egg-info/
+
+# Testing & Coverage
 .pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Local Environment Variables & Secrets
+.env
+.env.local
 
 # Databases & local data
 *.db
@@ -20,6 +33,8 @@ test_applications.db
 .DS_Store
 Thumbs.db
 
-# IDE
+# IDE & Editor files
 .vscode/
 .idea/
+*.swp
+*.swo
